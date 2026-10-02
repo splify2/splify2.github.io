@@ -271,13 +271,13 @@ def files_html(assets):
             label = f"<code>{html.escape(arch)}</code>" if arch else "Для любой архитектуры"
             rows.append(f"<tr><th>{label}</th>{cells}</tr>")
         head = "".join(f"<th>.{f}</th>" for f in fmts)
-        out.append(f'<div class="table"><table class="files"><thead><tr><th>Архитектура</th>{head}</tr></thead>'
+        out.append(f'<div class="table an-glass"><table class="files"><thead><tr><th>Архитектура</th>{head}</tr></thead>'
                    f'<tbody>{"".join(rows)}</tbody></table></div></div>')
     if plats:
         title = "Для сервера" if pkgs else "По платформам"
         rows = "".join(f'<tr><th>{html.escape(p)}</th><td>{"".join(chip(a) for a in plats[p])}</td></tr>'
                        for p in sorted(plats))
-        out.append(f'<div class="fgroup"><h4>{title}</h4><div class="table"><table class="files">'
+        out.append(f'<div class="fgroup"><h4>{title}</h4><div class="table an-glass"><table class="files">'
                    f"<tbody>{rows}</tbody></table></div></div>")
     if other:
         title = "Другие файлы" if pkgs or plats else "Файлы"
@@ -314,11 +314,12 @@ def version_html(rel_root, product, repo, v, current):
     summary = (f'<span class="ver{" pre" if pre else ""}">{html.escape(ver)}</span>'
                f'<span class="vmeta">{kind} · {human_date(v.get("date"))}</span>')
     if current:
-        return f'<div class="vcur" id="{html.escape(vid)}"><div class="vhead">{summary}</div>{inner}</div>'
-    return f'<details class="vold" id="{html.escape(vid)}"><summary>{summary}</summary>{inner}</details>'
+        return f'<div class="vcur an-glass" id="{html.escape(vid)}"><div class="vhead">{summary}</div>{inner}</div>'
+    return f'<details class="vold an-glass" id="{html.escape(vid)}"><summary>{summary}</summary>{inner}</details>'
 
 
 def product_html(rel_root, name, p):
+    # Стекло Andromeda: продукт — карточка .an-glass, версии и таблицы файлов в ней — вложенное стекло.
     repo = (p.get("repo") or f"{ORG}/{name}").split("/")[-1]
     vs = p.get("versions") or []
     by = {str(v.get("version")): v for v in vs}
@@ -335,7 +336,7 @@ def product_html(rel_root, name, p):
     if name in REL_DOCS:
         links.append(f'<a href="/docs/{REL_DOCS[name]}/">Документация</a>')
     links.append(f'<a href="https://github.com/{html.escape(p.get("repo") or f"{ORG}/{name}")}">GitHub</a>')
-    out = [f'<section class="product" id="{html.escape(name)}"><div class="phead">'
+    out = [f'<section class="product an-glass" id="{html.escape(name)}"><div class="phead">'
            f'<h2>{html.escape(p.get("title") or name)}</h2><div class="plinks">{"".join(links)}</div></div>']
     # Строка версий — когда есть и стабильная, и предварительная (иначе она повторяет заголовок версии ниже).
     if len(badges) > 1:
@@ -343,7 +344,7 @@ def product_html(rel_root, name, p):
     elif not cur:
         out.append('<p class="hint">Выпусков пока нет.</p>')
     if pre and stable:
-        out.append(version_html(rel_root, name, repo, pre, False).replace('class="vold"', 'class="vold vpre"', 1))
+        out.append(version_html(rel_root, name, repo, pre, False).replace('class="vold an-glass"', 'class="vold vpre an-glass"', 1))
     if cur:
         out.append(version_html(rel_root, name, repo, cur, True))
     older = [v for v in vs if v is not cur and v is not pre]

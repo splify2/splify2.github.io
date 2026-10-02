@@ -1,16 +1,7 @@
 /* Главная: первый экран со схемой сети, разделы, витрина панели. Токены — Andromeda (site.css).
-   Подложка страницы — .an-backdrop Andromeda (слой .page-bg во весь экран), карточки —
+   Подложка — .an-backdrop Andromeda на <body> по всей длине (site.css), карточки —
    стекло .an-glass: как экраны пульта splify2. Карточки стекла в разметке задают только форму —
    фон, кромку, тень и размытие даёт .an-glass. */
-.home { background: var(--an-glass-base); }
-/* Подложка — отдельным слоем во весь экран: пятна стоят на месте при прокрутке и на телефонах, где
-   background-attachment: fixed не работает. */
-.page-bg { position: fixed; inset: 0; z-index: -1; pointer-events: none; }
-/* Подложка темнее страницы и с пятнами акцента: второстепенный текст и ссылки на ней — на шаг
-   контрастнее, чем на сплошной странице документации (замер — не ниже 4,5:1 над пятнами). */
-.home { --muted: color-mix(in srgb, var(--an-text-secondary) 68%, var(--an-text));
-  --link: color-mix(in srgb, var(--an-accent-press) 78%, var(--an-text)); }
-.dark .home { --muted: var(--an-text-secondary); --link: color-mix(in srgb, var(--an-accent) 55%, #fff); }
 .hero { position: relative; overflow: hidden; padding: 72px 0 56px; }
 .hero-grid { position: relative; display: grid; grid-template-columns: 1.05fr 1fr; gap: var(--an-space-14); align-items: center; }
 .logo-draw { width: 72px; height: 72px; margin-bottom: var(--an-space-10); filter: drop-shadow(0 10px 24px var(--an-accent-glow)); }
@@ -116,7 +107,7 @@ section { padding: 64px 0; }
 .p:hover { transform: translateY(-4px); }
 .p:target { outline: 2px solid var(--an-accent); }
 .p .tag { align-self: flex-start; font: var(--an-text-caption); font-weight: var(--an-weight-semibold); letter-spacing: var(--an-tracking-caps); text-transform: uppercase;
-  color: var(--link); background: var(--an-accent-soft); padding: var(--an-space-2) 9px; border-radius: var(--an-radius-badge); margin-bottom: var(--an-space-6); }
+  color: var(--link); background: var(--chip-accent); padding: var(--an-space-2) 9px; border-radius: var(--an-radius-badge); margin-bottom: var(--an-space-6); }
 .p .tag.new { background: var(--btn-accent); color: var(--an-text-on-accent); }
 .p h3 { margin: 0 0 var(--an-space-4); font-size: 21px; }
 .p p { margin: 0 0 var(--an-space-8); color: var(--muted); font-size: 15.5px; }

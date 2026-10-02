@@ -6,21 +6,29 @@
    Тёмная тема — [data-theme="dark"] и класс dark на <html>, как у Andromeda (assets/theme.js). */
 :root {
   color-scheme: light;
-  /* Ссылки и акцентный текст: --an-accent-press — 6,2:1 на странице. */
-  --link: var(--an-accent-press);
-  /* Второстепенный текст: --an-text-secondary — 5,5:1 (--an-text-muted на странице — 4,2:1). */
-  --muted: var(--an-text-secondary);
+  /* Страница — на подложке стекла (.an-backdrop): она темнее страницы пульта и с пятнами акцента,
+     и стекло над пятнами светлеет не везде. Поэтому роли текста — на шаг контрастнее токенов:
+     ссылки — --an-accent-press, притемнённый к тексту; подпись — --an-text-secondary, притемнённый
+     так же (замер cc.py — не ниже 4,5:1 над любым пятном). */
+  --link: color-mix(in srgb, var(--an-accent-press) 78%, var(--an-text));
+  --muted: color-mix(in srgb, var(--an-text-secondary) 68%, var(--an-text));
+  /* Стекло для чтения (текст документации): плотнее --an-glass-surface — 72 % карточки. */
+  --glass-read: color-mix(in srgb, var(--an-surface-card) 72%, transparent);
   /* Кнопка с акцентом: белый на --an-accent — 4,2:1, на --an-accent-press — 6,6:1. */
   --btn-accent: var(--an-accent-press);
   --btn-accent-hover: color-mix(in srgb, var(--an-accent-press) 88%, #000);
   --code-bg: var(--an-surface-field);
+  /* Метки (версия, тег проекта) на стекле — на сплошной карточке: оттенок -soft поверх пятен
+     подложки иначе плывёт по контрасту. */
+  --chip-accent: linear-gradient(var(--an-accent-soft), var(--an-accent-soft)) var(--an-surface-card);
+  --chip-warn: linear-gradient(var(--an-warn-soft), var(--an-warn-soft)) var(--an-surface-card);
   --top-h: 60px;
 }
 [data-theme="dark"], .dark {
   color-scheme: dark;
-  /* Акцент на тёмной странице — 4,4:1; осветлённый — 6,6:1. */
-  --link: color-mix(in srgb, var(--an-accent) 75%, #fff);
-  --muted: var(--an-text-muted);
+  /* Акцент на тёмном стекле — ниже 4,5:1; осветлённый наполовину — выше 6:1. */
+  --link: color-mix(in srgb, var(--an-accent) 55%, #fff);
+  --muted: var(--an-text-secondary);
   --btn-accent-hover: color-mix(in srgb, var(--an-accent-press) 88%, #fff);
 }
 * { box-sizing: border-box; }
@@ -41,6 +49,23 @@ pre code { background: none; padding: 0; font-size: inherit; line-height: inheri
 /* JetBrains Mono сливает «-<», «>-», «->» в стрелки (calt): в командах вида steer-core-<версия> это
    искажает текст, который копируют в терминал. Шорткат font эту настройку не сбрасывает. */
 code, pre, kbd, samp, .ver, a.file, .copy { font-feature-settings: "calt" 0, "liga" 0; }
+/* ---- подложка: .an-backdrop Andromeda на <body> по всей длине страницы ----
+   Пятна .an-backdrop растянуты на элемент: на длинной странице это три пятна на весь документ, и
+   под карточками ниже первого экрана размывать нечего. Здесь те же пятна (--an-glass-spot-*) на
+   базе --an-glass-base — плиткой 2400 px по вертикали, по две группы на плитку; каждое пятно гаснет
+   внутри плитки, швов нет. Цвет базы и запасная сплошная страница при
+   prefers-reduced-transparency — из самой .an-backdrop. */
+body.an-backdrop {
+  background-image:
+    radial-gradient(ellipse 70% 15% at 90% 12%, var(--an-glass-spot-1), transparent 72%),
+    radial-gradient(ellipse 55% 14% at 48% 27%, var(--an-glass-spot-3), transparent 72%),
+    radial-gradient(ellipse 60% 15% at 5% 40%, var(--an-glass-spot-2), transparent 72%),
+    radial-gradient(ellipse 70% 15% at 10% 62%, var(--an-glass-spot-1), transparent 72%),
+    radial-gradient(ellipse 55% 14% at 55% 76%, var(--an-glass-spot-3), transparent 72%),
+    radial-gradient(ellipse 60% 15% at 94% 88%, var(--an-glass-spot-2), transparent 72%);
+  background-size: 100% 2400px; background-repeat: repeat-y;
+}
+@media (prefers-reduced-transparency: reduce) { body.an-backdrop { background-image: none; } }
 .wrap { max-width: 1160px; margin: 0 auto; padding: 0 var(--an-space-8); }
 
 /* ---- шапка: стекло хрома Andromeda (класс an-glass-chrome в разметке) ---- */
@@ -76,7 +101,7 @@ code, pre, kbd, samp, .ver, a.file, .copy { font-feature-settings: "calt" 0, "li
 .btn.primary:hover { background: var(--btn-accent-hover); box-shadow: var(--an-shadow-hover); }
 
 /* ---- подвал ---- */
-footer.foot { border-top: 1px solid var(--an-border); padding: var(--an-space-12) 0 44px; color: var(--muted); font-size: 15px; }
+footer.foot { border-style: solid; border-width: 1px 0 0; padding: var(--an-space-12) 0 44px; color: var(--muted); font-size: 15px; }
 footer.foot .wrap { display: flex; flex-wrap: wrap; gap: var(--an-space-8) var(--an-space-12); justify-content: space-between; align-items: center; }
 footer.foot nav { display: flex; flex-wrap: wrap; gap: 18px; }
 footer.foot a { color: var(--muted); }
@@ -88,6 +113,6 @@ footer.foot a:hover { color: var(--an-text); }
 .hl .s, .hl .s1, .hl .s2, .hl .sh { color: var(--hl-str, var(--an-success-ink)); }
 .hl .m, .hl .mi, .hl .mf, .hl .kc { color: var(--an-warn-ink); }
 .hl .nb, .hl .nf, .hl .na { color: var(--an-text); font-weight: var(--an-weight-medium); }
-/* --an-success-ink на поле кода в светлой теме — 3,7:1: строки темнее на четверть. */
-:root:not(.dark) { --hl-str: color-mix(in srgb, var(--an-success-ink) 72%, var(--an-text)); }
+/* --an-success-ink на поле кода в светлой теме — 3,7:1: строки темнее на треть. */
+:root:not(.dark) { --hl-str: color-mix(in srgb, var(--an-success-ink) 62%, var(--an-text)); }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

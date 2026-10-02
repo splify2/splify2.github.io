@@ -1,11 +1,13 @@
 /* Документация: три колонки — разделы, текст, оглавление страницы. Токены — Andromeda (site.css).
-   Текст документации — на сплошной поверхности страницы, без стекла: длинное чтение. */
+   Разделы и оглавление — стеклянный хром (.an-glass-chrome), статья — стеклянная панель (.an-glass),
+   но плотнее карточки пульта: --glass-read, 72 % поверхности карточки, — для длинного чтения.
+   Стекло задаёт Andromeda; здесь — только форма (рамка, радиус, отступы). */
 .top .search { position: relative; flex: 1; max-width: 420px; margin-left: var(--an-space-6); }
 .top .search::before { content: ""; position: absolute; left: 12px; top: 11px; width: 16px; height: 16px; pointer-events: none; background: var(--muted);
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") center / contain no-repeat;
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='m20 20-3.5-3.5'/%3E%3C/svg%3E") center / contain no-repeat; }
-.top .search input { width: 100%; height: 38px; border-radius: var(--an-radius-control); border: 1px solid var(--an-border);
-  background: var(--an-surface-card); color: var(--an-text); padding: 0 var(--an-space-6) 0 36px; font: inherit; font-size: 14.5px; outline: none;
+.top .search input { width: 100%; height: 38px; border-radius: var(--an-radius-control); border: 1px solid var(--an-glass-border);
+  background: var(--an-glass-field); color: var(--an-text); padding: 0 var(--an-space-6) 0 36px; font: inherit; font-size: 14.5px; outline: none;
   transition: var(--an-transition-hover); }
 .top .search input::placeholder { color: var(--muted); opacity: 1; }
 .top .search input:focus { border-color: var(--an-accent); box-shadow: 0 0 0 3px var(--an-accent-soft); }
@@ -23,17 +25,20 @@
 .menu span, .menu span::before, .menu span::after { position: absolute; left: 10px; right: 10px; height: 2px; background: var(--an-text); content: ""; border-radius: 2px; }
 .menu span { top: 18px; } .menu span::before { top: -6px; left: 0; right: 0; } .menu span::after { top: 6px; left: 0; right: 0; }
 
-.layout { display: grid; grid-template-columns: 240px minmax(0, 1fr) 220px; gap: var(--an-space-14); padding-top: var(--an-space-12); padding-bottom: var(--an-space-14); }
+.layout { display: grid; grid-template-columns: 240px minmax(0, 1fr) 220px; gap: var(--an-space-12); padding-top: var(--an-space-12); padding-bottom: var(--an-space-14); }
+.side, .toc { border-style: solid; border-width: 1px; border-radius: var(--an-radius-card); }
 .side { position: sticky; top: calc(var(--top-h) + 24px); align-self: start; max-height: calc(100vh - var(--top-h) - 40px); overflow: auto;
-  padding-right: var(--an-space-3); font-size: 14.5px; }
+  padding: var(--an-space-8) var(--an-space-5); font-size: 14.5px; }
+.side .nav-sec:last-child { margin-bottom: 0; }
 .nav-sec { margin-bottom: 18px; }
 .nav-title { font: var(--an-text-caption); font-weight: var(--an-weight-semibold); text-transform: uppercase; letter-spacing: var(--an-tracking-caps);
   color: var(--muted); margin: 0 0 var(--an-space-3) var(--an-space-5); }
 .side a { display: block; padding: var(--an-space-3) var(--an-space-5); border-radius: var(--an-radius-inner); color: var(--an-text); line-height: 1.35;
   transition: var(--an-transition-hover); }
-.side a:hover { background: var(--an-surface-field); text-decoration: none; }
+.side a:hover { background: var(--an-glass-hover); text-decoration: none; }
 .side a.on { background: var(--an-accent-soft); color: var(--link); font-weight: var(--an-weight-semibold); }
-.toc { position: sticky; top: calc(var(--top-h) + 24px); align-self: start; max-height: calc(100vh - var(--top-h) - 40px); overflow: auto; font-size: 13.5px; }
+.toc { position: sticky; top: calc(var(--top-h) + 24px); align-self: start; max-height: calc(100vh - var(--top-h) - 40px); overflow: auto; font-size: 13.5px;
+  padding: var(--an-space-8) var(--an-space-8) var(--an-space-8) var(--an-space-7); }
 .toc-title { font: var(--an-text-caption); font-weight: var(--an-weight-semibold); text-transform: uppercase; letter-spacing: var(--an-tracking-caps);
   color: var(--muted); margin-bottom: var(--an-space-4); }
 .toc a { display: block; color: var(--muted); padding: 3px 0 3px var(--an-space-5); border-left: 2px solid var(--an-border); line-height: 1.4; }
@@ -42,6 +47,10 @@
 .toc a.on { color: var(--link); border-left-color: var(--an-accent); }
 .crumb { color: var(--link); font-weight: var(--an-weight-semibold); font-size: 14px; margin-bottom: var(--an-space-2); }
 
+.doc-panel { border-style: solid; border-width: 1px; border-radius: var(--an-radius-card); padding: var(--an-space-12) 36px 32px; }
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .doc-panel.an-glass { background-color: var(--glass-read); }
+}
 .md { min-width: 0; }
 .md h1 { font-size: clamp(28px, 4vw, 38px); line-height: 1.2; letter-spacing: var(--an-tracking-verdict); margin: 0 0 18px; }
 .md h2 { font-size: 25px; line-height: 1.25; letter-spacing: var(--an-tracking-title); margin: 44px 0 var(--an-space-6); border-top: 1px solid var(--an-border); padding-top: var(--an-space-12); }
@@ -56,10 +65,10 @@
 .md li::marker { color: var(--muted); }
 .md blockquote { margin: var(--an-space-8) 0; padding: var(--an-space-5) var(--an-space-8); border-left: 3px solid var(--an-accent);
   background: var(--an-accent-soft); border-radius: 0 var(--an-radius-control) var(--an-radius-control) 0; }
-.md .table { overflow-x: auto; margin: var(--an-space-8) 0; border: 1px solid var(--an-border); border-radius: var(--an-radius-block); background: var(--an-surface-card); }
+.md .table { overflow-x: auto; margin: var(--an-space-8) 0; border: 1px solid var(--an-border); border-radius: var(--an-radius-block); background: var(--an-glass-tint); }
 .md table { border-collapse: collapse; width: 100%; font-size: 14.5px; }
 .md th, .md td { padding: 9px var(--an-space-6); border-bottom: 1px solid var(--an-border); text-align: left; vertical-align: top; }
-.md th { background: var(--an-surface-field); }
+.md th { background: var(--an-glass-field); }
 .md tr:last-child td { border-bottom: 0; }
 .md img { border-radius: var(--an-radius-block); }
 .md hr { border: 0; border-top: 1px solid var(--an-border); margin: var(--an-space-14) 0; }
@@ -71,8 +80,8 @@
 pre:hover .copy, .copy:focus-visible { opacity: 1; }
 .pn { display: grid; grid-template-columns: 1fr 1fr; gap: var(--an-space-7); margin-top: 48px; }
 .pn a { border: 1px solid var(--an-border); border-radius: var(--an-radius-block); padding: var(--an-space-7) var(--an-space-8); color: var(--an-text);
-  font-weight: var(--an-weight-semibold); background: var(--an-surface-card); transition: var(--an-transition-hover); }
-.pn a:hover { border-color: var(--an-accent-line); text-decoration: none; }
+  font-weight: var(--an-weight-semibold); background: var(--an-glass-tint); transition: var(--an-transition-hover); }
+.pn a:hover { border-color: var(--an-accent-line); background: var(--an-glass-hover); text-decoration: none; }
 .pn a span { display: block; font-size: 13px; color: var(--muted); font-weight: var(--an-weight-regular); }
 .pn .next { grid-column: 2; text-align: right; }
 .meta { margin-top: 18px; font-size: 14px; }
@@ -80,9 +89,11 @@ pre:hover .copy, .copy:focus-visible { opacity: 1; }
 @media (max-width: 1100px) { .layout { grid-template-columns: 220px minmax(0, 1fr); } .toc { display: none; } }
 @media (max-width: 820px) {
   .layout { grid-template-columns: 1fr; gap: 0; padding-top: var(--an-space-9); }
+  .doc-panel { padding: var(--an-space-9) var(--an-space-8) var(--an-space-10); }
   .menu { display: block; }
-  .side { position: fixed; top: var(--top-h); left: 0; bottom: 0; width: 280px; max-height: none; background: var(--an-surface-rail);
-    border-right: 1px solid var(--an-border); padding: 18px var(--an-space-6); transform: translateX(-100%); transition: transform var(--an-dur-control) var(--an-ease); z-index: 15; }
+  /* Выдвижные разделы — хром плотнее: под ними текст статьи. */
+  .side { position: fixed; top: var(--top-h); left: 0; bottom: 0; width: 280px; max-height: none; border-radius: 0; border-width: 0 1px 0 0;
+    background-color: color-mix(in srgb, var(--an-surface-rail) 90%, transparent); padding: 18px var(--an-space-6); transform: translateX(-100%); transition: transform var(--an-dur-control) var(--an-ease); z-index: 15; }
   .nav-open .side { transform: none; box-shadow: var(--an-shadow-float); }
   .top .brand { display: none; }
   .top .search { margin-left: 0; }
