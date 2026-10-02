@@ -9,6 +9,11 @@
 - `build.py` — и выпуски: `releases/index.html` из `version.json` и `changelogs/` клона
   splify2/releases (шаблон — `templates/releases.html`) и `releases/version.json` — его копия байт в
   байт: один из адресов, с которых version.json читают установщик и роутеры.
+- `build.py` — и дизайн-система: Andromeda, та же, что у пульта splify2, берётся из клона splify2
+  (`SRC/splify2/ui/andromeda`, другой путь — переменной `ANDROMEDA`) и кладётся в `assets/andromeda/`:
+  `styles.css`, `tokens/*.css`, `assets/fonts/` (Onest и JetBrains Mono с лицензиями OFL). Без неё
+  сборка падает. Стили сайта (`assets/*.css`) — на её токенах `--an-*`; тёмная тема — `data-theme="dark"`
+  и класс `dark` на `<html>` (`assets/theme.js`: выбор человека или тема системы).
 - `content/` — свои страницы: обзор, быстрый старт, как это работает.
 - `tools/frame.html` — рамка для скриншотов панели (`assets/img/framed/`, рендер headless-браузером).
 - `.github/workflows/pages.yml` — сборка и публикация: при пуше, раз в сутки, при новом выпуске

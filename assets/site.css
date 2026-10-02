@@ -1,66 +1,93 @@
-/* Общий стиль splify2.github.io: главная и документация. Палитра — из логотипа splify2. */
+/* Общий стиль splify2.github.io: главная, документация и выпуски.
+   Цвета, шрифты, радиусы, отступы и тени — токены Andromeda (--an-*), дизайн-системы пульта
+   splify2: /assets/andromeda/styles.css, его кладёт build.py из splify2/ui/andromeda. Своей палитры
+   здесь нет — только роли текста сайта, выведенные из токенов там, где токен как цвет текста не
+   проходит контраст 4,5:1 (акцент на белом — 4,2:1, подпись на странице — 4,2:1).
+   Тёмная тема — [data-theme="dark"] и класс dark на <html>, как у Andromeda (assets/theme.js). */
 :root {
-  --bg: #f6f5fb; --bg2: #eeecf7; --surface: #ffffff; --text: #17142a; --muted: #5d5a75; --line: #e2dfef;
-  --accent: #6d5ce7; --accent2: #a897ff; --accent-soft: #ece9ff; --code: #f1eff9; --ok: #1f9d6b; --warn: #c2410c;
-  --shadow: 0 1px 2px rgba(20, 15, 50, .06), 0 8px 24px rgba(20, 15, 50, .06);
-  --grad: linear-gradient(135deg, #a897ff 0%, #6d5ce7 100%);
-  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  color-scheme: light;
+  /* Ссылки и акцентный текст: --an-accent-press — 6,2:1 на странице. */
+  --link: var(--an-accent-press);
+  /* Второстепенный текст: --an-text-secondary — 5,5:1 (--an-text-muted на странице — 4,2:1). */
+  --muted: var(--an-text-secondary);
+  /* Кнопка с акцентом: белый на --an-accent — 4,2:1, на --an-accent-press — 6,6:1. */
+  --btn-accent: var(--an-accent-press);
+  --btn-accent-hover: color-mix(in srgb, var(--an-accent-press) 88%, #000);
+  --code-bg: var(--an-surface-field);
+  --top-h: 60px;
 }
-@media (prefers-color-scheme: dark) {
-  :root { --bg: #0f0d17; --bg2: #151221; --surface: #1a1628; --text: #ebe8f6; --muted: #a29fbb; --line: #2a2540;
-          --accent: #a897ff; --accent2: #c9bfff; --accent-soft: #241e3d; --code: #1e1a2e; --ok: #4fd6a0; --warn: #fb923c;
-          --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.35); }
+[data-theme="dark"], .dark {
+  color-scheme: dark;
+  /* Акцент на тёмной странице — 4,4:1; осветлённый — 6,6:1. */
+  --link: color-mix(in srgb, var(--an-accent) 75%, #fff);
+  --muted: var(--an-text-muted);
+  --btn-accent-hover: color-mix(in srgb, var(--an-accent-press) 88%, #fff);
 }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-body { margin: 0; background: var(--bg); color: var(--text);
-  font: 16px/1.65 Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
+body { margin: 0; background: var(--an-surface-page); color: var(--an-text);
+  font: var(--an-weight-regular) 16px/1.65 var(--an-font-sans); -webkit-font-smoothing: antialiased;
+  transition: var(--an-transition-theme); }
+b, strong, th { font-weight: var(--an-weight-semibold); }
+h1, h2, h3, h4, h5, h6 { font-weight: var(--an-weight-semibold); }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--an-focus-ring); outline-offset: 2px; }
 img { max-width: 100%; }
-code { font: .9em var(--mono); background: var(--code); padding: .1em .4em; border-radius: 6px; }
-pre { background: var(--code); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; overflow-x: auto;
-  font: 13.5px/1.6 var(--mono); white-space: pre; }
-pre code { background: none; padding: 0; font-size: inherit; }
-.wrap { max-width: 1160px; margin: 0 auto; padding: 0 16px; }
+code { font: .88em/1.5 var(--an-font-mono); background: var(--code-bg); padding: .1em .4em; border-radius: var(--an-radius-badge); }
+pre { background: var(--code-bg); border: 1px solid var(--an-border); border-radius: var(--an-radius-block);
+  padding: var(--an-space-7) var(--an-space-8); overflow-x: auto; font: 13.5px/1.65 var(--an-font-mono); white-space: pre; }
+pre code { background: none; padding: 0; font-size: inherit; line-height: inherit; }
+/* JetBrains Mono сливает «-<», «>-», «->» в стрелки (calt): в командах вида steer-core-<версия> это
+   искажает текст, который копируют в терминал. Шорткат font эту настройку не сбрасывает. */
+code, pre, kbd, samp, .ver, a.file, .copy { font-feature-settings: "calt" 0, "liga" 0; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 0 var(--an-space-8); }
 
-/* ---- шапка ---- */
-.top { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--line);
-  background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: saturate(1.4) blur(12px); }
-.top .wrap { display: flex; align-items: center; gap: 16px; height: 60px; }
-.brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 750; font-size: 18px; letter-spacing: -.01em; }
+/* ---- шапка: стекло хрома Andromeda (класс an-glass-chrome в разметке) ---- */
+.top { position: sticky; top: 0; z-index: 20; border-style: solid; border-width: 0 0 1px; }
+.top .wrap { display: flex; align-items: center; gap: var(--an-space-8); height: var(--top-h); }
+.brand { display: flex; align-items: center; gap: var(--an-space-5); color: var(--an-text); font-weight: var(--an-weight-semibold);
+  font-size: 18px; letter-spacing: var(--an-tracking-title); }
 .brand:hover { text-decoration: none; }
 .brand img { width: 30px; height: 30px; }
-.top nav { margin-left: auto; display: flex; align-items: center; gap: 4px; }
-.top nav a { color: var(--muted); padding: 8px 12px; border-radius: 8px; font-size: 15px; font-weight: 550; }
-.top nav a:hover, .top nav a.on { color: var(--text); background: var(--accent-soft); text-decoration: none; }
-.gh { display: inline-flex; align-items: center; gap: 6px; }
+.top nav { margin-left: auto; display: flex; align-items: center; gap: var(--an-space-2); }
+.top nav a { color: var(--muted); padding: var(--an-space-4) var(--an-space-6); border-radius: var(--an-radius-control); font-size: 15px;
+  font-weight: var(--an-weight-medium); transition: var(--an-transition-hover); }
+.top nav a:hover, .top nav a.on { color: var(--an-text); background: var(--an-accent-soft); text-decoration: none; }
+.gh { display: inline-flex; align-items: center; gap: var(--an-space-3); }
 .gh svg { width: 18px; height: 18px; fill: currentColor; }
-@media (max-width: 680px) { .top nav a.opt { display: none; } .top nav a { padding: 8px 9px; } }
+.theme { flex: none; width: var(--an-size-icon-button); height: var(--an-size-icon-button); display: grid; place-items: center; padding: 0;
+  border: 1px solid var(--an-border); border-radius: var(--an-radius-control); background: transparent; color: var(--muted); cursor: pointer;
+  transition: var(--an-transition-hover); }
+.theme:hover { color: var(--an-text); background: var(--an-accent-soft); }
+.theme svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.theme .sun, .dark .theme .moon { display: none; }
+.dark .theme .sun { display: block; }
+@media (max-width: 680px) { .top nav a.opt { display: none; } .top nav a { padding: var(--an-space-4) var(--an-space-5); } }
+/* Узкий телефон: GitHub — в подвале, в шапке остаются разделы и тема. */
+@media (max-width: 420px) { .top .wrap { gap: var(--an-space-4); } .top nav { gap: 0; } .top nav a { padding: var(--an-space-4) var(--an-space-4); } .top nav a.gh { display: none; } }
 
 /* ---- кнопки ---- */
-.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 12px; font-weight: 650;
-  border: 1px solid var(--line); color: var(--text); background: var(--surface); transition: transform .15s, box-shadow .15s; }
-.btn:hover { text-decoration: none; transform: translateY(-1px); box-shadow: var(--shadow); }
-.btn.primary { background: var(--grad); color: #fff; border-color: transparent; }
+.btn { display: inline-flex; align-items: center; gap: var(--an-gap-inline); min-height: var(--an-size-touch); padding: var(--an-space-5) var(--an-space-9);
+  border-radius: var(--an-radius-control); font-weight: var(--an-weight-semibold); border: 1px solid var(--an-border); color: var(--an-text);
+  background: var(--an-surface-card); transition: var(--an-transition-hover), box-shadow var(--an-dur-hover) var(--an-ease); }
+.btn:hover { text-decoration: none; transform: translateY(-1px); border-color: var(--an-accent-line); }
+.btn.primary { background: var(--btn-accent); color: var(--an-text-on-accent); border-color: transparent; }
+.btn.primary:hover { background: var(--btn-accent-hover); box-shadow: var(--an-shadow-hover); }
 
 /* ---- подвал ---- */
-footer.foot { border-top: 1px solid var(--line); padding: 32px 0 44px; color: var(--muted); font-size: 15px; }
-footer.foot .wrap { display: flex; flex-wrap: wrap; gap: 16px 28px; justify-content: space-between; align-items: center; }
+footer.foot { border-top: 1px solid var(--an-border); padding: var(--an-space-12) 0 44px; color: var(--muted); font-size: 15px; }
+footer.foot .wrap { display: flex; flex-wrap: wrap; gap: var(--an-space-8) var(--an-space-12); justify-content: space-between; align-items: center; }
 footer.foot nav { display: flex; flex-wrap: wrap; gap: 18px; }
 footer.foot a { color: var(--muted); }
-footer.foot a:hover { color: var(--text); }
+footer.foot a:hover { color: var(--an-text); }
 
-/* ---- подсветка кода (pygments, класс hl) ---- */
-.hl .c, .hl .c1, .hl .cm, .hl .ch { color: #8a86a3; font-style: italic; }
-.hl .k, .hl .kd, .hl .kn, .hl .nt { color: #7c5cf0; }
-.hl .s, .hl .s1, .hl .s2, .hl .sh { color: #13896a; }
-.hl .m, .hl .mi, .hl .mf, .hl .kc { color: #c2410c; }
-.hl .nb, .hl .nf, .hl .na { color: #2563eb; }
-@media (prefers-color-scheme: dark) {
-  .hl .k, .hl .kd, .hl .kn, .hl .nt { color: #b9a8ff; }
-  .hl .s, .hl .s1, .hl .s2, .hl .sh { color: #5ee0b0; }
-  .hl .m, .hl .mi, .hl .mf, .hl .kc { color: #fdba74; }
-  .hl .nb, .hl .nf, .hl .na { color: #93c5fd; }
-}
+/* ---- подсветка кода (pygments, класс hl): цвета состояний Andromeda, контраст ≥ 4,5:1 на --code-bg ---- */
+.hl .c, .hl .c1, .hl .cm, .hl .ch { color: var(--muted); font-style: italic; }
+.hl .k, .hl .kd, .hl .kn, .hl .nt { color: var(--link); }
+.hl .s, .hl .s1, .hl .s2, .hl .sh { color: var(--hl-str, var(--an-success-ink)); }
+.hl .m, .hl .mi, .hl .mf, .hl .kc { color: var(--an-warn-ink); }
+.hl .nb, .hl .nf, .hl .na { color: var(--an-text); font-weight: var(--an-weight-medium); }
+/* --an-success-ink на поле кода в светлой теме — 3,7:1: строки темнее на четверть. */
+:root:not(.dark) { --hl-str: color-mix(in srgb, var(--an-success-ink) 72%, var(--an-text)); }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }

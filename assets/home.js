@@ -10,8 +10,12 @@
 
   // Витрина: вкладки и смена раз в несколько секунд, пока человек сам не выбрал.
   var tabs = Array.prototype.slice.call(document.querySelectorAll('.tabs button'));
-  var img = document.getElementById('shot-img'), dark = document.getElementById('shot-dark'), cap = document.getElementById('shot-cap');
+  // Кадр — в теме сайта (data-theme на <html>, assets/theme.js).
+  var img = document.getElementById('shot-img'), cap = document.getElementById('shot-cap');
   var cur = 0, auto = true, timer = null;
+  function src(shot) { return '/assets/img/framed/' + shot + (document.documentElement.classList.contains('dark') ? '-dark' : '-light') + '.webp'; }
+  if (img && tabs.length) img.src = src(tabs[0].dataset.shot);
+  document.addEventListener('themechange', function () { if (img && tabs[cur]) img.src = src(tabs[cur].dataset.shot); });
   tabs.forEach(function (t) { var i = new Image(); i.src = '/assets/img/framed/' + t.dataset.shot + '-light.webp'; var j = new Image(); j.src = '/assets/img/framed/' + t.dataset.shot + '-dark.webp'; });
   function show(i) {
     cur = i;
@@ -19,8 +23,7 @@
     tabs.forEach(function (b, k) { b.classList.toggle('on', k === i); b.setAttribute('aria-selected', k === i); });
     img.classList.add('fade');
     setTimeout(function () {
-      img.src = '/assets/img/framed/' + t.dataset.shot + '-light.webp';
-      dark.srcset = '/assets/img/framed/' + t.dataset.shot + '-dark.webp';
+      img.src = src(t.dataset.shot);
       img.alt = t.textContent;
       cap.textContent = t.dataset.cap;
       img.classList.remove('fade');

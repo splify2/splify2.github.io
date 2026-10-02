@@ -8,6 +8,9 @@
 Выпуски — из клона splify2/releases (SRC/releases): releases/index.html и releases/version.json —
 копия байт в байт, третий адрес чтения version.json для установщика и роутеров.
 
+Дизайн-система Andromeda — та же, что у пульта splify2: из клона splify2 (SRC/splify2/ui/andromeda,
+другой путь — переменной ANDROMEDA) в assets/andromeda/: styles.css, tokens/*.css и assets/fonts/.
+
     python3 build.py            # SRC — родительский каталог
     SRC=/путь python3 build.py
 """
@@ -379,7 +382,54 @@ def build_releases():
     return True
 
 
+# ---- Andromeda: дизайн-система пульта splify2 (ui/andromeda) — один источник правды и для сайта ----
+
+ANDROMEDA_SRC = os.environ.get("ANDROMEDA") or os.path.join(SRC, "splify2", "ui", "andromeda")
+ANDROMEDA_OUT = os.path.join(ROOT, "assets", "andromeda")
+CSS_REF = re.compile(r"""@import\s+(?:url\()?\s*["']([^"']+)["']|url\(\s*["']?([^"')]+)["']?\s*\)""")
+
+
+def build_andromeda():
+    """styles.css, tokens/*.css и assets/fonts/* (шрифты с лицензиями OFL) — в assets/andromeda/ той
+    же раскладкой, что в splify2: относительные @import и url() остаются рабочими. Нет источника или
+    ссылки CSS ведут на отсутствующий файл — False (сборка падает, как без документации)."""
+    styles = os.path.join(ANDROMEDA_SRC, "styles.css")
+    tokens = os.path.join(ANDROMEDA_SRC, "tokens")
+    fonts = os.path.join(ANDROMEDA_SRC, "assets", "fonts")
+    if not (os.path.isfile(styles) and os.path.isdir(tokens) and os.path.isdir(fonts)):
+        print(f"нет Andromeda: {ANDROMEDA_SRC} (styles.css, tokens/, assets/fonts/) — дизайн-систему сайт "
+              "берёт из splify2/ui/andromeda", file=sys.stderr)
+        return False
+    if os.path.isdir(ANDROMEDA_OUT):
+        shutil.rmtree(ANDROMEDA_OUT)
+    os.makedirs(os.path.join(ANDROMEDA_OUT, "tokens"))
+    shutil.copyfile(styles, os.path.join(ANDROMEDA_OUT, "styles.css"))
+    css = ["styles.css"]
+    for name in sorted(os.listdir(tokens)):
+        if name.endswith(".css"):
+            shutil.copyfile(os.path.join(tokens, name), os.path.join(ANDROMEDA_OUT, "tokens", name))
+            css.append(f"tokens/{name}")
+    shutil.copytree(fonts, os.path.join(ANDROMEDA_OUT, "assets", "fonts"))
+    broken = []
+    for rel in css:
+        text = open(os.path.join(ANDROMEDA_OUT, rel), encoding="utf-8").read()
+        for m in CSS_REF.finditer(re.sub(r"/\*.*?\*/", "", text, flags=re.S)):
+            ref = (m.group(1) or m.group(2)).split("#")[0].split("?")[0]
+            if re.match(r"^[a-z]+:|^/", ref):
+                continue
+            if not os.path.isfile(os.path.normpath(os.path.join(ANDROMEDA_OUT, posixpath.dirname(rel), ref))):
+                broken.append(f"{rel} → {ref}")
+    if broken:
+        print("Andromeda: ссылки CSS на отсутствующие файлы: " + ", ".join(broken), file=sys.stderr)
+        return False
+    print(f"andromeda: стилей {len(css)}, шрифтов {len(os.listdir(os.path.join(ANDROMEDA_OUT, 'assets', 'fonts')))}")
+    return True
+
+
 def main():
+    if not build_andromeda():
+        print("нет источников: splify2:ui/andromeda", file=sys.stderr)
+        sys.exit(1)
     tpl = open(os.path.join(ROOT, "templates", "doc.html"), encoding="utf-8").read()
     index, missing = [], []
     for i, (sec, slug, title, src) in enumerate(PAGES):

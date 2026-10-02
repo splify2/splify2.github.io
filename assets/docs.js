@@ -35,7 +35,7 @@
       box.innerHTML = hits.length ? hits.map(function (h) {
         var it = h.it;
         return '<a href="/docs/' + it.p + '/' + (it.a ? '#' + it.a : '') + '"><b>' + mark(it.h, words) +
-          (it.h !== it.t ? ' <span style="color:var(--muted);font-weight:500">· ' + esc(it.t) + '</span>' : '') +
+          (it.h !== it.t ? ' <span>· ' + esc(it.t) + '</span>' : '') +
           '</b><small>' + mark(snippet(it.x, words[0]), words) + '</small></a>';
       }).join('') : '<div class="none">Ничего не нашлось</div>';
       box.hidden = false;

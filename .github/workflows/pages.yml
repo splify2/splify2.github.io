@@ -1,7 +1,8 @@
 name: pages
 
 # Сайт: главная (index.html, assets/), документация, собранная из markdown репозиториев проектов, и
-# выпуски из splify2/releases (build.py). Пересборка — при изменении сайта, раз в сутки
+# выпуски из splify2/releases (build.py). Стили и шрифты — дизайн-система Andromeda из splify2/ui/andromeda
+# (build.py кладёт её в assets/andromeda/). Пересборка — при изменении сайта, раз в сутки
 # (документация живёт в проектах), при новом выпуске и вручную.
 #
 # Новый выпуск: раз в час сверяется version.json сайта с version.json в splify2/releases; разошлись —
@@ -55,6 +56,13 @@ jobs:
           for r in splify2 steer steer-box-connector xsteer splify2-lists releases; do
             git clone --depth 1 "https://github.com/splify2/$r.git" "src/$r"
           done
+          # Дизайн-система Andromeda (стили и шрифты сайта) — splify2/ui/andromeda, как у пульта. Пока её нет
+          # в main splify2, берётся из рабочей ветки (переменная репозитория ANDROMEDA_BRANCH, иначе glass).
+          # После слияния ветки в main splify2 этот шаг ничего не делает; его можно убрать.
+          if [ ! -f src/splify2/ui/andromeda/styles.css ]; then
+            git clone --depth 1 -b "${{ vars.ANDROMEDA_BRANCH || 'glass' }}" https://github.com/splify2/splify2.git src/splify2-andromeda
+            echo "ANDROMEDA=$PWD/src/splify2-andromeda/ui/andromeda" >> "$GITHUB_ENV"
+          fi
       - name: Документация и выпуски
         run: |
           pip install markdown pygments
