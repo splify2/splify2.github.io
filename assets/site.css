@@ -53,8 +53,8 @@ code, pre, kbd, samp, .ver, a.file, .copy { font-feature-settings: "calt" 0, "li
    Пятна .an-backdrop растянуты на элемент: на длинной странице это три пятна на весь документ, и
    под карточками ниже первого экрана размывать нечего. Здесь те же пятна (--an-glass-spot-*) на
    базе --an-glass-base — плиткой 2400 px по вертикали, по две группы на плитку; каждое пятно гаснет
-   внутри плитки, швов нет. Цвет базы и запасная сплошная страница при
-   prefers-reduced-transparency — из самой .an-backdrop. */
+   внутри плитки, швов нет. Цвет базы — из самой .an-backdrop; prefers-reduced-transparency стекло
+   не выключает (как и в Andromeda, ui/andromeda/tokens/glass.css). */
 body.an-backdrop {
   background-image:
     radial-gradient(ellipse 70% 15% at 90% 12%, var(--an-glass-spot-1), transparent 72%),
@@ -65,7 +65,6 @@ body.an-backdrop {
     radial-gradient(ellipse 60% 15% at 94% 88%, var(--an-glass-spot-2), transparent 72%);
   background-size: 100% 2400px; background-repeat: repeat-y;
 }
-@media (prefers-reduced-transparency: reduce) { body.an-backdrop { background-image: none; } }
 .wrap { max-width: 1160px; margin: 0 auto; padding: 0 var(--an-space-8); }
 
 /* ---- шапка: стекло хрома Andromeda (класс an-glass-chrome в разметке) ---- */
