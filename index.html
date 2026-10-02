@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>splify2 — маршрутизация по правилам для OpenWrt</title>
+<meta name="description" content="Выбранные сервисы — через туннель на всех устройствах сети, остальное — напрямую. Панель splify2, движок steer, коннектор для podkop и forkop, протокол xsteer.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%233b6cf6'/%3E%3Cpath d='M8 22 L16 10 L24 22' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+:root {
+  --bg: #f7f8fb; --surface: #ffffff; --text: #141822; --muted: #5a6275; --line: #e3e6ee;
+  --accent: #3b6cf6; --accent-soft: #e8eefe; --code: #f0f2f7; --ok: #1f9d55;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0e1117; --surface: #161a23; --text: #e8ebf2; --muted: #9aa3b5; --line: #262c39;
+          --accent: #7b9cff; --accent-soft: #1c2440; --code: #1d2230; --ok: #4cc38a; }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+header.top { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
+header.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; gap: 12px; }
+.brand { font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; font-size: 18px; }
+.brand svg { width: 26px; height: 26px; }
+nav a { color: var(--muted); margin-left: 18px; font-size: 15px; }
+nav a:hover { color: var(--text); text-decoration: none; }
+@media (max-width: 640px) { nav a.opt { display: none; } nav a { margin-left: 12px; } }
+.hero { padding: 72px 0 40px; }
+.hero h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1.15; margin: 0 0 18px; letter-spacing: -0.02em; }
+.hero p.lead { font-size: clamp(17px, 2.2vw, 20px); color: var(--muted); max-width: 720px; margin: 0 0 28px; }
+.btns { display: flex; flex-wrap: wrap; gap: 12px; }
+.btn { display: inline-block; padding: 11px 18px; border-radius: 10px; font-weight: 600; border: 1px solid var(--line);
+  color: var(--text); background: var(--surface); }
+.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn:hover { text-decoration: none; filter: brightness(1.05); }
+.flow { margin: 48px 0 8px; display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 10px; align-items: center; }
+.flow .node { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
+.flow .node b { display: block; margin-bottom: 2px; }
+.flow .node span { color: var(--muted); font-size: 14px; }
+.flow .arrow { color: var(--muted); font-size: 22px; text-align: center; }
+@media (max-width: 760px) { .flow { grid-template-columns: 1fr; } .flow .arrow { transform: rotate(90deg); } }
+section { padding: 48px 0; }
+section h2 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.01em; }
+section p.sub { color: var(--muted); margin: 0 0 28px; max-width: 720px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; scroll-margin-top: 76px;
+  display: flex; flex-direction: column; }
+.card:target { outline: 2px solid var(--accent); }
+.card .tag { display: inline-block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--accent); background: var(--accent-soft); padding: 3px 8px; border-radius: 6px; margin-bottom: 10px; align-self: flex-start; }
+.card h3 { margin: 0 0 8px; font-size: 21px; }
+.card p { margin: 0 0 12px; color: var(--muted); }
+.card ul { margin: 0 0 16px; padding-left: 18px; color: var(--text); font-size: 15px; }
+.card ul li { margin: 3px 0; }
+.card .links { margin-top: auto; display: flex; flex-wrap: wrap; gap: 14px; font-size: 15px; font-weight: 600; }
+pre { background: var(--code); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; overflow-x: auto;
+  font: 13.5px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; margin: 0 0 12px;
+  white-space: pre-wrap; overflow-wrap: anywhere; }
+code { font: 0.92em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--code); padding: 1px 5px; border-radius: 5px; }
+pre code { background: none; padding: 0; }
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+.step { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
+.step h3 { margin: 0 0 6px; font-size: 19px; }
+.step p { color: var(--muted); margin: 0 0 12px; }
+footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--muted); font-size: 15px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 18px; justify-content: space-between; }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap">
+  <a class="brand" href="#"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M8 22 L16 10 L24 22" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>splify2</a>
+  <nav><a href="#projects">Проекты</a><a href="#start">Установка</a><a class="opt" href="https://t.me/ssplify">Чат</a><a href="https://github.com/splify2">GitHub</a></nav>
+</div></header>
+
+<main>
+<div class="wrap hero">
+  <h1>Нужные сервисы — через туннель.<br>Всё остальное — напрямую.</h1>
+  <p class="lead">Одна настройка на роутере с OpenWrt вместо VPN на каждом телефоне, ноутбуке и телевизоре. Правила по доменам и адресам, несколько выходов с переключением при отказе, свои клиенты VLESS, hysteria2 и xsteer. Маршрутизация — в ядре роутера (nftables и таблицы маршрутизации), без прокси на каждое соединение.</p>
+  <div class="btns">
+    <a class="btn primary" href="#start">Как поставить</a>
+    <a class="btn" href="https://github.com/splify2">Исходники на GitHub</a>
+  </div>
+  <div class="flow" aria-label="Как это устроено">
+    <div class="node"><b>splify2</b><span>панель в LuCI или podkop / forkop через коннектор</span></div>
+    <div class="arrow">→</div>
+    <div class="node"><b>steer</b><span>спека → nftables, таблицы маршрутизации, fake-IP</span></div>
+    <div class="arrow">→</div>
+    <div class="node"><b>выходы</b><span>WireGuard, AmneziaWG, VLESS/Reality, hysteria2, xsteer…</span></div>
+  </div>
+</div>
+
+<section id="projects"><div class="wrap">
+  <h2>Проекты</h2>
+  <p class="sub">Исходный код открыт. Всё рассчитано на обычные домашние роутеры: от одного ядра и десятков мегабайт памяти.</p>
+  <div class="grid">
+    <article class="card" id="splify2">
+      <span class="tag">Панель</span>
+      <h3>splify2</h3>
+      <p>Страница <b>Сервисы → splify2</b> в LuCI: выбрать сервисы, выходы и подписки — и забыть.</p>
+      <ul>
+        <li>каталог сервисов со списками, которые обновляются сами</li>
+        <li>выходы: свой интерфейс (WireGuard, AmneziaWG), подписки VLESS и hysteria2, xsteer</li>
+        <li>пулы и группы выходов, поведение при отказе всех</li>
+        <li>обход закрытого GitHub при скачивании: зеркало и запасные хосты</li>
+      </ul>
+      <div class="links"><a href="https://github.com/splify2/splify2">Репозиторий</a><a href="https://github.com/splify2/splify2/releases">Выпуски</a></div>
+    </article>
+    <article class="card" id="steer">
+      <span class="tag">Движок</span>
+      <h3>steer</h3>
+      <p>Решает, какой трафик уходит в туннель. Правила — один файл, применение — одна атомарная транзакция.</p>
+      <ul>
+        <li>домены через fake-IP: точнее списков адресов CDN</li>
+        <li>свой DNS у правил: DoT, DoH, DoQ, UDP/TCP — напрямую или через выход</li>
+        <li>failover между устройствами и группы выходов</li>
+        <li>модули: VLESS/Reality, hysteria2, trojan, shadowsocks, xsteer, обфускация WireGuard</li>
+      </ul>
+      <div class="links"><a href="https://github.com/splify2/steer">Репозиторий</a><a href="https://github.com/splify2/steer/releases">Выпуски</a></div>
+    </article>
+    <article class="card" id="steer-box-connector">
+      <span class="tag">Новое</span>
+      <h3>steer-box-connector</h3>
+      <p>Пакет вместо <code>sing-box</code> для <a href="https://github.com/itdoginfo/podkop">podkop</a> и <a href="https://github.com/ushan0v/forkop">forkop</a>. Их конфиг переводится в правила steer — маршрутизация идёт в ядре, без TPROXY.</p>
+      <ul>
+        <li>podkop и forkop не меняются и ставятся как обычно</li>
+        <li>selector держит туннель только к выбранному узлу</li>
+        <li>Clash API, DoH по HTTP/2, проверка FakeIP в браузере</li>
+        <li>перезапуск на роутере — около секунды</li>
+      </ul>
+      <div class="links"><a href="https://github.com/splify2/steer-box-connector">Репозиторий</a><a href="https://github.com/splify2/steer-box-connector/releases">Выпуски</a></div>
+    </article>
+    <article class="card" id="xsteer">
+      <span class="tag">Протокол</span>
+      <h3>xsteer</h3>
+      <p>Свой VPN-протокол: для наблюдателя поток выглядит как TLS 1.3 на :443 поверх обычного TCP, внутри — Noise IK.</p>
+      <ul>
+        <li>клиент для настольных систем и хаб для сервера на Go</li>
+        <li>на роутере — движок на C в составе steer</li>
+        <li>звезда: пиры ходят друг к другу через хаб</li>
+      </ul>
+      <div class="links"><a href="https://splify2.github.io/xsteer/">Сайт xsteer</a><a href="https://github.com/splify2/xsteer">Репозиторий</a></div>
+    </article>
+    <article class="card" id="splify2-lists">
+      <span class="tag">Списки</span>
+      <h3>splify2-lists</h3>
+      <p>Каталог того, что можно завернуть в туннель, одним файлом <code>lists.json</code>: свои списки рядом, чужие — ссылкой на релиз тех, кто их ведёт.</p>
+      <ul>
+        <li>форк работает сразу: свой каталог без единой правки</li>
+        <li>подключается в splify2 одной ссылкой</li>
+      </ul>
+      <div class="links"><a href="https://github.com/splify2/splify2-lists">Репозиторий</a></div>
+    </article>
+  </div>
+</div></section>
+
+<section id="start"><div class="wrap">
+  <h2>Установка</h2>
+  <p class="sub">Команды выполняются на роутере по ssh. Архитектуру и менеджер пакетов (apk или opkg) установщики определяют сами.</p>
+  <div class="steps">
+    <div class="step">
+      <h3>splify2 с движком</h3>
+      <p>Ставит движок и страницу LuCI <b>Сервисы → splify2</b>.</p>
+      <pre><code>wget -O /tmp/splify2-install.sh https://gitlab.com/xyzmean/splify2/-/raw/main/install.sh &amp;&amp; sh /tmp/splify2-install.sh</code></pre>
+      <p>Ссылка ведёт на зеркало GitLab: оно открывается и там, где закрыт githubusercontent.</p>
+    </div>
+    <div class="step">
+      <h3>Коннектор для podkop и forkop</h3>
+      <p>Тестовый набор из выпуска: пакеты коннектора и steer той же версии и установщик.</p>
+      <pre><code>tar -xzf steer-box-connector-test-&lt;версия&gt;.tar.gz
+cd steer-box-connector-test-&lt;версия&gt;
+sh install.sh</code></pre>
+      <p>Обычный sing-box заменяется коннектором; podkop или forkop на время установки останавливаются и запускаются снова.</p>
+    </div>
+  </div>
+</div></section>
+</main>
+
+<footer><div class="wrap">
+  <span>splify2 · открытый исходный код</span>
+  <span><a href="https://github.com/splify2">GitHub</a> · <a href="https://t.me/ssplify">Telegram</a> · <a href="https://pay.cloudtips.ru/p/fb925110">Поддержать проект</a></span>
+</div></footer>
+</body>
+</html>
