@@ -4,185 +4,185 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>splify2 — маршрутизация по правилам для OpenWrt</title>
-<meta name="description" content="Выбранные сервисы — через туннель на всех устройствах сети, остальное — напрямую. Панель splify2, движок steer, коннектор для podkop и forkop, протокол xsteer.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%233b6cf6'/%3E%3Cpath d='M8 22 L16 10 L24 22' stroke='white' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
-<style>
-:root {
-  --bg: #f7f8fb; --surface: #ffffff; --text: #141822; --muted: #5a6275; --line: #e3e6ee;
-  --accent: #3b6cf6; --accent-soft: #e8eefe; --code: #f0f2f7; --ok: #1f9d55;
-}
-@media (prefers-color-scheme: dark) {
-  :root { --bg: #0e1117; --surface: #161a23; --text: #e8ebf2; --muted: #9aa3b5; --line: #262c39;
-          --accent: #7b9cff; --accent-soft: #1c2440; --code: #1d2230; --ok: #4cc38a; }
-}
-* { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body { margin: 0; background: var(--bg); color: var(--text);
-  font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-a { color: var(--accent); text-decoration: none; }
-a:hover { text-decoration: underline; }
-.wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
-header.top { position: sticky; top: 0; z-index: 5; background: color-mix(in srgb, var(--bg) 88%, transparent);
-  backdrop-filter: blur(8px); border-bottom: 1px solid var(--line); }
-header.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 56px; gap: 12px; }
-.brand { font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; font-size: 18px; }
-.brand svg { width: 26px; height: 26px; }
-nav a { color: var(--muted); margin-left: 18px; font-size: 15px; }
-nav a:hover { color: var(--text); text-decoration: none; }
-@media (max-width: 640px) { nav a.opt { display: none; } nav a { margin-left: 12px; } }
-.hero { padding: 72px 0 40px; }
-.hero h1 { font-size: clamp(30px, 5vw, 48px); line-height: 1.15; margin: 0 0 18px; letter-spacing: -0.02em; }
-.hero p.lead { font-size: clamp(17px, 2.2vw, 20px); color: var(--muted); max-width: 720px; margin: 0 0 28px; }
-.btns { display: flex; flex-wrap: wrap; gap: 12px; }
-.btn { display: inline-block; padding: 11px 18px; border-radius: 10px; font-weight: 600; border: 1px solid var(--line);
-  color: var(--text); background: var(--surface); }
-.btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-.btn:hover { text-decoration: none; filter: brightness(1.05); }
-.flow { margin: 48px 0 8px; display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 10px; align-items: center; }
-.flow .node { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; }
-.flow .node b { display: block; margin-bottom: 2px; }
-.flow .node span { color: var(--muted); font-size: 14px; }
-.flow .arrow { color: var(--muted); font-size: 22px; text-align: center; }
-@media (max-width: 760px) { .flow { grid-template-columns: 1fr; } .flow .arrow { transform: rotate(90deg); } }
-section { padding: 48px 0; }
-section h2 { font-size: 28px; margin: 0 0 8px; letter-spacing: -0.01em; }
-section p.sub { color: var(--muted); margin: 0 0 28px; max-width: 720px; }
-.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-.card { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; scroll-margin-top: 76px;
-  display: flex; flex-direction: column; }
-.card:target { outline: 2px solid var(--accent); }
-.card .tag { display: inline-block; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em;
-  color: var(--accent); background: var(--accent-soft); padding: 3px 8px; border-radius: 6px; margin-bottom: 10px; align-self: flex-start; }
-.card h3 { margin: 0 0 8px; font-size: 21px; }
-.card p { margin: 0 0 12px; color: var(--muted); }
-.card ul { margin: 0 0 16px; padding-left: 18px; color: var(--text); font-size: 15px; }
-.card ul li { margin: 3px 0; }
-.card .links { margin-top: auto; display: flex; flex-wrap: wrap; gap: 14px; font-size: 15px; font-weight: 600; }
-pre { background: var(--code); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; overflow-x: auto;
-  font: 13.5px/1.55 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; margin: 0 0 12px;
-  white-space: pre-wrap; overflow-wrap: anywhere; }
-code { font: 0.92em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; background: var(--code); padding: 1px 5px; border-radius: 5px; }
-pre code { background: none; padding: 0; }
-.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
-.step { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 22px; }
-.step h3 { margin: 0 0 6px; font-size: 19px; }
-.step p { color: var(--muted); margin: 0 0 12px; }
-footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--muted); font-size: 15px; }
-footer .wrap { display: flex; flex-wrap: wrap; gap: 18px; justify-content: space-between; }
-</style>
+<meta name="description" content="Выбранные сервисы — через туннель на всех устройствах сети, остальное — напрямую. Панель splify2, ядро steer, коннектор для podkop и forkop, протокол xsteer.">
+<meta property="og:title" content="splify2 — маршрутизация по правилам для OpenWrt">
+<meta property="og:description" content="Нужные сервисы — через туннель. Всё остальное — напрямую. Одна настройка на роутере вместо VPN на каждом устройстве.">
+<meta property="og:image" content="https://splify2.github.io/assets/img/shots/home-dark.png">
+<link rel="icon" href="/assets/img/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/assets/site.css">
+<link rel="stylesheet" href="/assets/home.css">
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <a class="brand" href="#"><svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="var(--accent)"/><path d="M8 22 L16 10 L24 22" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>splify2</a>
-  <nav><a href="#projects">Проекты</a><a href="#start">Установка</a><a class="opt" href="https://t.me/ssplify">Чат</a><a href="https://github.com/splify2">GitHub</a></nav>
+  <a class="brand" href="/"><img src="/assets/img/logo.svg" alt="">splify2</a>
+  <nav>
+    <a class="opt" href="#features">Возможности</a>
+    <a class="opt" href="#shots">Панель</a>
+    <a class="opt" href="#projects">Проекты</a>
+    <a href="/docs/">Документация</a>
+    <a class="gh" href="https://github.com/splify2" aria-label="GitHub"><svg viewBox="0 0 16 16"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
+  </nav>
 </div></header>
 
 <main>
-<div class="wrap hero">
-  <h1>Нужные сервисы — через туннель.<br>Всё остальное — напрямую.</h1>
-  <p class="lead">Одна настройка на роутере с OpenWrt вместо VPN на каждом телефоне, ноутбуке и телевизоре. Правила по доменам и адресам, несколько выходов с переключением при отказе, свои клиенты VLESS, hysteria2 и xsteer. Маршрутизация — в ядре роутера (nftables и таблицы маршрутизации), без прокси на каждое соединение.</p>
-  <div class="btns">
-    <a class="btn primary" href="#start">Как поставить</a>
-    <a class="btn" href="https://github.com/splify2">Исходники на GitHub</a>
-  </div>
-  <div class="flow" aria-label="Как это устроено">
-    <div class="node"><b>splify2</b><span>панель в LuCI или podkop / forkop через коннектор</span></div>
-    <div class="arrow">→</div>
-    <div class="node"><b>steer</b><span>спека → nftables, таблицы маршрутизации, fake-IP</span></div>
-    <div class="arrow">→</div>
-    <div class="node"><b>выходы</b><span>WireGuard, AmneziaWG, VLESS/Reality, hysteria2, xsteer…</span></div>
-  </div>
-</div>
+<section class="hero">
+  <div class="glow" aria-hidden="true"></div>
+  <div class="wrap hero-grid">
+    <div class="hero-text">
+      <svg class="logo-draw" viewBox="0 0 160 160" aria-hidden="true">
+        <defs>
+          <linearGradient id="hg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#221a35"/><stop offset="1" stop-color="#12101b"/></linearGradient>
+          <linearGradient id="hs" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a897ff"/><stop offset="1" stop-color="#6d5ce7"/></linearGradient>
+        </defs>
+        <rect x="6" y="6" width="148" height="148" rx="36" fill="url(#hg)"/>
+        <rect x="6.75" y="6.75" width="146.5" height="146.5" rx="35.25" fill="none" stroke="#8b7cf6" stroke-opacity=".28" stroke-width="1.5"/>
+        <path class="s" d="M112 34 H78 a22 22 0 0 0 0 44 h4 a22 22 0 0 1 0 44 H44" stroke="url(#hs)" stroke-width="16" fill="none" stroke-linecap="round"/>
+      </svg>
+      <h1>Нужные сервисы&nbsp;— <span class="grad">через туннель.</span><br>Всё остальное&nbsp;— напрямую.</h1>
+      <p class="lead">Одна настройка на роутере с OpenWrt вместо VPN на каждом телефоне, ноутбуке и телевизоре. Правила по доменам и адресам, несколько выходов с переключением при отказе, свои клиенты VLESS, hysteria2 и xsteer — а маршрутизация в ядре Linux, без прокси на каждое соединение.</p>
+      <div class="cta">
+        <a class="btn primary" href="#install">Установить</a>
+        <a class="btn" href="/docs/">Документация</a>
+        <a class="btn ghost" href="https://github.com/splify2">GitHub</a>
+      </div>
+    </div>
 
-<section id="projects"><div class="wrap">
-  <h2>Проекты</h2>
-  <p class="sub">Исходный код открыт. Всё рассчитано на обычные домашние роутеры: от одного ядра и десятков мегабайт памяти.</p>
-  <div class="grid">
-    <article class="card" id="splify2">
-      <span class="tag">Панель</span>
-      <h3>splify2</h3>
-      <p>Страница <b>Сервисы → splify2</b> в LuCI: выбрать сервисы, выходы и подписки — и забыть.</p>
-      <ul>
-        <li>каталог сервисов со списками, которые обновляются сами</li>
-        <li>выходы: свой интерфейс (WireGuard, AmneziaWG), подписки VLESS и hysteria2, xsteer</li>
-        <li>пулы и группы выходов, поведение при отказе всех</li>
-        <li>обход закрытого GitHub при скачивании: зеркало и запасные хосты</li>
-      </ul>
-      <div class="links"><a href="https://github.com/splify2/splify2">Репозиторий</a><a href="https://github.com/splify2/splify2/releases">Выпуски</a></div>
-    </article>
-    <article class="card" id="steer">
-      <span class="tag">Движок</span>
-      <h3>steer</h3>
-      <p>Решает, какой трафик уходит в туннель. Правила — один файл, применение — одна атомарная транзакция.</p>
-      <ul>
-        <li>домены через fake-IP: точнее списков адресов CDN</li>
-        <li>свой DNS у правил: DoT, DoH, DoQ, UDP/TCP — напрямую или через выход</li>
-        <li>failover между устройствами и группы выходов</li>
-        <li>модули: VLESS/Reality, hysteria2, trojan, shadowsocks, xsteer, обфускация WireGuard</li>
-      </ul>
-      <div class="links"><a href="https://github.com/splify2/steer">Репозиторий</a><a href="https://github.com/splify2/steer/releases">Выпуски</a></div>
-    </article>
-    <article class="card" id="steer-box-connector">
-      <span class="tag">Новое</span>
-      <h3>steer-box-connector</h3>
-      <p>Пакет вместо <code>sing-box</code> для <a href="https://github.com/itdoginfo/podkop">podkop</a> и <a href="https://github.com/ushan0v/forkop">forkop</a>. Их конфиг переводится в правила steer — маршрутизация идёт в ядре, без TPROXY.</p>
-      <ul>
-        <li>podkop и forkop не меняются и ставятся как обычно</li>
-        <li>selector держит туннель только к выбранному узлу</li>
-        <li>Clash API, DoH по HTTP/2, проверка FakeIP в браузере</li>
-        <li>перезапуск на роутере — около секунды</li>
-      </ul>
-      <div class="links"><a href="https://github.com/splify2/steer-box-connector">Репозиторий</a><a href="https://github.com/splify2/steer-box-connector/releases">Выпуски</a></div>
-    </article>
-    <article class="card" id="xsteer">
-      <span class="tag">Протокол</span>
-      <h3>xsteer</h3>
-      <p>Свой VPN-протокол: для наблюдателя поток выглядит как TLS 1.3 на :443 поверх обычного TCP, внутри — Noise IK.</p>
-      <ul>
-        <li>клиент для настольных систем и хаб для сервера на Go</li>
-        <li>на роутере — движок на C в составе steer</li>
-        <li>звезда: пиры ходят друг к другу через хаб</li>
-      </ul>
-      <div class="links"><a href="https://splify2.github.io/xsteer/">Сайт xsteer</a><a href="https://github.com/splify2/xsteer">Репозиторий</a></div>
-    </article>
-    <article class="card" id="splify2-lists">
-      <span class="tag">Списки</span>
-      <h3>splify2-lists</h3>
-      <p>Каталог того, что можно завернуть в туннель, одним файлом <code>lists.json</code>: свои списки рядом, чужие — ссылкой на релиз тех, кто их ведёт.</p>
-      <ul>
-        <li>форк работает сразу: свой каталог без единой правки</li>
-        <li>подключается в splify2 одной ссылкой</li>
-      </ul>
-      <div class="links"><a href="https://github.com/splify2/splify2-lists">Репозиторий</a></div>
-    </article>
+    <div class="net" aria-label="Схема: устройства сети, роутер, туннель для выбранных сервисов и прямой путь для остальных">
+      <svg viewBox="0 0 520 420" role="img">
+        <defs>
+          <linearGradient id="tun" x1="0" x2="1"><stop offset="0" stop-color="#a897ff"/><stop offset="1" stop-color="#6d5ce7"/></linearGradient>
+          <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="6"/></filter>
+        </defs>
+        <path id="p1" class="wire" d="M92 70 C 170 70, 170 210, 250 210"/>
+        <path id="p2" class="wire" d="M92 210 L 250 210"/>
+        <path id="p3" class="wire" d="M92 350 C 170 350, 170 210, 250 210"/>
+        <path id="pt" class="wire tunnel" d="M290 210 C 360 210, 360 90, 440 90"/>
+        <path id="pd" class="wire direct" d="M290 210 C 360 210, 360 330, 440 330"/>
+        <g class="dev" transform="translate(40 40)"><rect width="52" height="60" rx="12"/><rect x="18" y="10" width="16" height="30" rx="4" class="ico"/><text x="26" y="78">телефон</text></g>
+        <g class="dev" transform="translate(40 180)"><rect width="52" height="60" rx="12"/><rect x="11" y="14" width="30" height="20" rx="3" class="ico"/><rect x="7" y="36" width="38" height="4" rx="2" class="ico"/><text x="26" y="78">ноутбук</text></g>
+        <g class="dev" transform="translate(40 320)"><rect width="52" height="60" rx="12"/><rect x="9" y="14" width="34" height="22" rx="3" class="ico"/><rect x="20" y="38" width="12" height="3" rx="1.5" class="ico"/><text x="26" y="78">телевизор</text></g>
+        <g transform="translate(240 168)">
+          <rect class="router-glow" width="60" height="84" rx="16" filter="url(#soft)"/>
+          <rect class="router" width="60" height="84" rx="16"/>
+          <path d="M42 22 H30 a7 7 0 0 0 0 14 h1.5 a7 7 0 0 1 0 14 H18" stroke="url(#tun)" stroke-width="5" fill="none" stroke-linecap="round" transform="translate(0 6)"/>
+          <text x="30" y="104" class="lbl">роутер</text>
+        </g>
+        <g transform="translate(440 54)"><rect class="dst tunnel" width="72" height="72" rx="18"/><path d="M24 30 v-6 a12 12 0 0 1 24 0 v6" class="lock"/><rect x="20" y="30" width="32" height="24" rx="5" class="lockb"/><text x="36" y="92" class="lbl">туннель</text></g>
+        <g transform="translate(440 294)"><rect class="dst direct" width="72" height="72" rx="18"/><circle cx="36" cy="36" r="16" class="globe"/><path d="M20 36 H52 M36 20 C 28 28, 28 44, 36 52 M36 20 C 44 28, 44 44, 36 52" class="globe"/><text x="36" y="92" class="lbl">напрямую</text></g>
+        <circle r="5" class="pk in"><animateMotion dur="2.6s" repeatCount="indefinite" begin="0s"><mpath href="#p1"/></animateMotion></circle>
+        <circle r="5" class="pk in"><animateMotion dur="2.2s" repeatCount="indefinite" begin=".7s"><mpath href="#p2"/></animateMotion></circle>
+        <circle r="5" class="pk in"><animateMotion dur="2.8s" repeatCount="indefinite" begin="1.3s"><mpath href="#p3"/></animateMotion></circle>
+        <circle r="5" class="pk in"><animateMotion dur="2.4s" repeatCount="indefinite" begin="1.9s"><mpath href="#p1"/></animateMotion></circle>
+        <circle r="6" class="pk t"><animateMotion dur="1.8s" repeatCount="indefinite" begin=".4s"><mpath href="#pt"/></animateMotion></circle>
+        <circle r="6" class="pk t"><animateMotion dur="1.8s" repeatCount="indefinite" begin="1.3s"><mpath href="#pt"/></animateMotion></circle>
+        <circle r="5" class="pk d"><animateMotion dur="2s" repeatCount="indefinite" begin=".9s"><mpath href="#pd"/></animateMotion></circle>
+        <circle r="5" class="pk d"><animateMotion dur="2s" repeatCount="indefinite" begin="1.9s"><mpath href="#pd"/></animateMotion></circle>
+        <g class="chip" transform="translate(306 116)"><rect width="128" height="26" rx="13"/><text x="64" y="17">YouTube, ИИ, соцсети</text></g>
+        <g class="chip muted" transform="translate(306 282)"><rect width="128" height="26" rx="13"/><text x="64" y="17">банки, госуслуги</text></g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section class="stats reveal"><div class="wrap stats-grid">
+  <div><b>10</b><span>архитектур OpenWrt — от MIPS до Cortex-A72 и x86-64</span></div>
+  <div><b>~1&nbsp;с</b><span>перезапуск связки ядра и коннектора на роутере</span></div>
+  <div><b>0</b><span>прокси на соединение: метки nftables и таблицы маршрутизации</span></div>
+  <div><b>apk + opkg</b><span>OpenWrt 25.12 и прежние выпуски: оба формата пакетов</span></div>
+</div></section>
+
+<section id="features" class="features"><div class="wrap">
+  <div class="sec-head reveal"><span class="kicker">Возможности</span><h2>Всё, что нужно для раздельного туннеля</h2><p>Правила сверху вниз, выходы с проверкой, домены через fake-IP. Ядро steer применяет это одной атомарной транзакцией: либо новые правила встают целиком, либо остаются прежние.</p></div>
+  <div class="fgrid">
+    <div class="f reveal"><div class="fi">🎯</div><h3>Домены, а не только адреса</h3><p>Резолвер отвечает на имена из списков служебным адресом из 198.18.0.0/15 и возвращает настоящий через DNAT. Точнее списков адресов CDN.</p></div>
+    <div class="f reveal"><div class="fi">🔀</div><h3>Группы и отказоустойчивость</h3><p>Первый живой, самый быстрый, выбор человека или балансировка. Упало всё — трафик правила останавливается, а не уходит в открытый интернет.</p></div>
+    <div class="f reveal"><div class="fi">🛡️</div><h3>Свои клиенты протоколов</h3><p>VLESS/Reality с Vision и транспортами, hysteria2, trojan, shadowsocks, socks, http, vmess, xsteer — модулями, ставятся по нужде.</p></div>
+    <div class="f reveal"><div class="fi">🧭</div><h3>DNS под правило</h3><p>У правила может быть свой сервер DNS: DoT, DoH, DoQ, UDP или TCP — напрямую или через выбранный выход, с кэшем ответов.</p></div>
+    <div class="f reveal"><div class="fi">📚</div><h3>Каталог сервисов</h3><p>Списки доменов и адресов обновляются сами; при закрытом GitHub скачивание идёт через зеркало GitLab и запасные хосты.</p></div>
+    <div class="f reveal"><div class="fi">🔌</div><h3>Для podkop и forkop</h3><p>steer-box-connector встаёт вместо sing-box: их конфиг переводится в правила ядра, без TPROXY и без правок самих podkop и forkop.</p></div>
   </div>
 </div></section>
 
-<section id="start"><div class="wrap">
-  <h2>Установка</h2>
-  <p class="sub">Команды выполняются на роутере по ssh. Архитектуру и менеджер пакетов (apk или opkg) установщики определяют сами.</p>
-  <div class="steps">
-    <div class="step">
-      <h3>splify2 с движком</h3>
-      <p>Ставит движок и страницу LuCI <b>Сервисы → splify2</b>.</p>
-      <pre><code>wget -O /tmp/splify2-install.sh https://gitlab.com/xyzmean/splify2/-/raw/main/install.sh &amp;&amp; sh /tmp/splify2-install.sh</code></pre>
-      <p>Ссылка ведёт на зеркало GitLab: оно открывается и там, где закрыт githubusercontent.</p>
+<section id="shots" class="shots"><div class="wrap">
+  <div class="sec-head reveal"><span class="kicker">Панель splify2</span><h2>Сервисы → splify2 в LuCI</h2><p>Правила, выходы, подписки и диагностика — на одной странице роутера.</p></div>
+  <div class="tabs reveal" role="tablist">
+    <button role="tab" data-shot="home" data-cap="Главная: правила, выходы и остаток трафика подписок" class="on">Главная</button>
+    <button role="tab" data-shot="editor" data-cap="Правило: сервисы из каталога, кого касается и куда">Правило</button>
+    <button role="tab" data-shot="catalog" data-cap="Каталог: списки сервисов и где они используются">Каталог</button>
+    <button role="tab" data-shot="vpn" data-cap="VPN: свои туннели, подписки VLESS, xsteer и выходы">Выходы</button>
+    <button role="tab" data-shot="explain" data-cap="Куда пойдёт запрос: правило и выход для имени">Куда пойдёт запрос</button>
+    <button role="tab" data-shot="diag" data-cap="Диагностика: проверки ядра, выходов и DNS, журнал">Диагностика</button>
+  </div>
+  <div class="framed reveal">
+    <picture>
+      <source id="shot-dark" srcset="/assets/img/framed/home-dark.webp" media="(prefers-color-scheme: dark)">
+      <img id="shot-img" src="/assets/img/framed/home-light.webp" alt="Главная страница splify2" width="1300" height="1141">
+    </picture>
+    <p class="cap" id="shot-cap">Главная: правила, выходы и остаток трафика подписок</p>
+  </div>
+</div></section>
+
+<section class="how"><div class="wrap">
+  <div class="sec-head reveal"><span class="kicker">Как это работает</span><h2>Четыре шага пакета</h2><p>Всё — средства ядра Linux. Процесс нужен только туннелям протоколов, и то как устройство TUN.</p></div>
+  <ol class="steps">
+    <li class="reveal"><span class="n">1</span><h3>DNS</h3><p>Имя из списка правила получает служебный адрес fake-IP; остальные — настоящий ответ.</p></li>
+    <li class="reveal"><span class="n">2</span><h3>Метка</h3><p>Первый пакет проходит цепочки nftables: совпавшее правило ставит метку своего выхода.</p></li>
+    <li class="reveal"><span class="n">3</span><h3>DNAT</h3><p>Служебный адрес меняется на настоящий по карте резолвера — приложение этого не видит.</p></li>
+    <li class="reveal"><span class="n">4</span><h3>Маршрут</h3><p>По метке ip rule ведёт пакет в таблицу выхода: wg0, VLESS, hysteria2, xsteer. Без метки — напрямую.</p></li>
+  </ol>
+  <div class="more reveal"><a href="/docs/how-it-works/">Подробнее — в документации →</a></div>
+</div></section>
+
+<section id="projects" class="projects"><div class="wrap">
+  <div class="sec-head reveal"><span class="kicker">Проекты</span><h2>Открытый исходный код</h2><p>Всё рассчитано на обычные домашние роутеры: одно ядро процессора, десятки мегабайт памяти, 6–7 МБ на разделе overlay.</p></div>
+  <div class="pgrid">
+    <article class="p reveal" id="splify2"><span class="tag">Панель</span><h3>splify2</h3><p>Страница LuCI и объект rpcd: каталог сервисов, выходы, подписки VLESS и hysteria2, интерфейсы xsteer, пулы и группы, диагностика.</p><div class="links"><a href="/docs/splify2/">Документация</a><a href="https://github.com/splify2/splify2">GitHub</a><a href="https://github.com/splify2/splify2/releases">Выпуски</a></div></article>
+    <article class="p reveal" id="steer"><span class="tag">Ядро</span><h3>steer</h3><p>Ядро маршрутизации на C: спека YAML или JSON → nftables, таблицы маршрутизации и наборы адресов. Резолвер с fake-IP, сторож выходов, CLI и управляющий сокет.</p><div class="links"><a href="/docs/steer/">Документация</a><a href="https://github.com/splify2/steer">GitHub</a><a href="https://github.com/splify2/steer/releases">Выпуски</a></div></article>
+    <article class="p reveal" id="steer-box-connector"><span class="tag new">Новое</span><h3>steer-box-connector</h3><p>Пакет вместо sing-box для podkop и forkop. Selector держит туннель только к выбранному узлу, Clash API, DoH по HTTP/2, проверка FakeIP.</p><div class="links"><a href="/docs/connector/">Документация</a><a href="https://github.com/splify2/steer-box-connector">GitHub</a></div></article>
+    <article class="p reveal" id="xsteer"><span class="tag">Протокол</span><h3>xsteer</h3><p>VPN-протокол с обликом TLS 1.3 на :443 поверх обычного TCP, внутри — Noise IK. Хаб для сервера и клиенты на Go, на роутере — в ядре steer.</p><div class="links"><a href="https://splify2.github.io/xsteer/">Сайт</a><a href="/docs/xsteer/">Документация</a><a href="https://github.com/splify2/xsteer">GitHub</a></div></article>
+    <article class="p reveal" id="splify2-lists"><span class="tag">Списки</span><h3>splify2-lists</h3><p>Каталог того, что можно завернуть в туннель, одним файлом lists.json: свои списки рядом, чужие — ссылкой на их релиз. Форк работает без правок.</p><div class="links"><a href="/docs/lists/">Документация</a><a href="https://github.com/splify2/splify2-lists">GitHub</a></div></article>
+  </div>
+</div></section>
+
+<section id="install" class="install"><div class="wrap">
+  <div class="sec-head reveal"><span class="kicker">Установка</span><h2>Одна команда на роутере</h2><p>По ssh на роутере. Архитектуру и менеджер пакетов (apk или opkg) установщики определяют сами.</p></div>
+  <div class="itabs reveal" role="tablist">
+    <button class="on" data-i="i1">splify2 с ядром</button>
+    <button data-i="i2">Коннектор для podkop/forkop</button>
+    <button data-i="i3">Только ядро steer</button>
+  </div>
+  <div class="ipanes reveal">
+    <div class="ipane on" id="i1">
+      <div class="code"><pre><code>wget -O /tmp/splify2-install.sh https://gitlab.com/xyzmean/splify2/-/raw/main/install.sh &amp;&amp; sh /tmp/splify2-install.sh</code></pre><button class="cp">Скопировать</button></div>
+      <p>Ставит ядро и страницу LuCI <b>Сервисы → splify2</b>. Ссылка ведёт на зеркало GitLab: оно открывается и там, где закрыт githubusercontent.</p>
     </div>
-    <div class="step">
-      <h3>Коннектор для podkop и forkop</h3>
-      <p>Тестовый набор из выпуска: пакеты коннектора и steer той же версии и установщик.</p>
-      <pre><code>tar -xzf steer-box-connector-test-&lt;версия&gt;.tar.gz
+    <div class="ipane" id="i2">
+      <div class="code"><pre><code>tar -xzf steer-box-connector-test-&lt;версия&gt;.tar.gz
 cd steer-box-connector-test-&lt;версия&gt;
-sh install.sh</code></pre>
-      <p>Обычный sing-box заменяется коннектором; podkop или forkop на время установки останавливаются и запускаются снова.</p>
+sh install.sh</code></pre><button class="cp">Скопировать</button></div>
+      <p>Тестовый набор: пакеты коннектора и ядра той же версии. Обычный sing-box заменяется коннектором, podkop или forkop на время установки останавливаются и запускаются снова.</p>
+    </div>
+    <div class="ipane" id="i3">
+      <div class="code"><pre><code>apk add --allow-untrusted ./steer-core-&lt;версия&gt;-1_&lt;арх&gt;.apk ./steer-vless-&lt;версия&gt;-1_&lt;арх&gt;.apk</code></pre><button class="cp">Скопировать</button></div>
+      <p>Пакеты — со страницы <a href="https://github.com/splify2/steer/releases">выпусков steer</a>; на opkg — <code>opkg install</code> тех же файлов .ipk. Спека — <code>/etc/steer/spec.yaml</code>, дальше <code>steer apply</code>. <a href="/docs/quickstart/">Быстрый старт →</a></p>
     </div>
   </div>
+</div></section>
+
+<section class="faq"><div class="wrap narrow">
+  <div class="sec-head reveal"><span class="kicker">Вопросы</span><h2>Частые вопросы</h2></div>
+  <details class="reveal"><summary>Чем это отличается от VPN на каждом устройстве?</summary><p>Правила живут на роутере и действуют на все устройства сети — телевизоры, приставки, гостевые телефоны. В туннель уходят только выбранные сервисы, остальное идёт напрямую с обычной скоростью.</p></details>
+  <details class="reveal"><summary>Какой роутер подойдёт?</summary><p>Любой с OpenWrt на одной из поддерживаемых архитектур: MIPS 24Kc, ARM Cortex-A7 и Cortex-A9, AArch64 (Cortex-A53, Cortex-A72, generic), x86-64. Ядро steer написано под слабые роутеры: одно ядро процессора и десятки мегабайт памяти.</p></details>
+  <details class="reveal"><summary>У меня уже стоит podkop или forkop</summary><p>Их можно оставить: <a href="/docs/connector/">steer-box-connector</a> встаёт вместо пакета sing-box, а podkop и forkop продолжают писать свой конфиг и показывать свою страницу.</p></details>
+  <details class="reveal"><summary>Что будет, если туннель упадёт?</summary><p>Сторож переключит трафик на следующий живой выход группы. Если не работает ничего, по умолчанию трафик правила останавливается — так он не уходит в открытый интернет. Можно выбрать «пустить напрямую».</p></details>
+  <details class="reveal"><summary>Где спросить и сообщить о проблеме?</summary><p>Чат поддержки — <a href="https://t.me/ssplify">t.me/ssplify</a>; ошибки — в обращениях на GitHub нужного проекта, шаблон подскажет, что приложить.</p></details>
 </div></section>
 </main>
 
-<footer><div class="wrap">
-  <span>splify2 · открытый исходный код</span>
-  <span><a href="https://github.com/splify2">GitHub</a> · <a href="https://t.me/ssplify">Telegram</a> · <a href="https://pay.cloudtips.ru/p/fb925110">Поддержать проект</a></span>
+<footer class="foot"><div class="wrap">
+  <span><img src="/assets/img/logo.svg" alt="" width="20" height="20" style="vertical-align:-4px;margin-right:8px">splify2 · открытый исходный код</span>
+  <nav><a href="/docs/">Документация</a><a href="https://github.com/splify2">GitHub</a><a href="https://t.me/ssplify">Telegram</a><a href="https://pay.cloudtips.ru/p/fb925110">Поддержать проект</a></nav>
 </div></footer>
+<script src="/assets/home.js" defer></script>
 </body>
 </html>

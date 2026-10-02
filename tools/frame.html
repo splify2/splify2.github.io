@@ -1,0 +1,29 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+  html, body { margin: 0; background: transparent; }
+  body { padding: 56px 64px 80px; font: 600 26px Inter, system-ui, sans-serif; }
+  .win { position: relative; border-radius: 26px; padding: 2px; background: linear-gradient(135deg, #c9bfff, #6d5ce7 55%, #3c2f9e);
+    box-shadow: 0 34px 80px -28px rgba(80, 50, 200, .42), 0 14px 32px -18px rgba(0, 0, 0, .3); }
+  .in { border-radius: 24px; overflow: hidden; background: var(--bg); }
+  .bar { display: flex; align-items: center; gap: 14px; height: 64px; padding: 0 26px; background: var(--bar); border-bottom: 1px solid var(--line); }
+  .bar i { width: 18px; height: 18px; border-radius: 50%; display: block; }
+  .bar i:nth-child(1) { background: #ff5f57; } .bar i:nth-child(2) { background: #febc2e; } .bar i:nth-child(3) { background: #28c840; }
+  .url { margin-left: 22px; flex: 1; height: 38px; border-radius: 12px; background: var(--url); color: var(--muted); display: flex; align-items: center; padding: 0 18px; font-weight: 500; font-size: 20px; gap: 10px; }
+  .url b { color: var(--text); font-weight: 650; }
+  img.shot { display: block; width: 1600px; }
+  .dark { --bg: #111117; --bar: #1b1a24; --line: #2a2838; --url: #24222f; --muted: #8e8aa6; --text: #e8e6f3; }
+  .light { --bg: #fff; --bar: #f3f2f8; --line: #e3e1ee; --url: #ffffff; --muted: #8a87a0; --text: #2a2740; }
+</style></head>
+<body>
+<div class="win"><div class="in" id="in">
+  <div class="bar"><i></i><i></i><i></i><div class="url">🔒 192.168.1.1 / LuCI / <b id="cap">Сервисы → splify2</b></div></div>
+  <img class="shot" id="shot" alt="">
+</div></div>
+<script>
+  var q = new URLSearchParams(location.search);
+  document.getElementById('in').className = 'in ' + (q.get('theme') || 'dark');
+  document.getElementById('shot').src = q.get('src');
+  document.getElementById('cap').textContent = 'Сервисы → splify2 · ' + (q.get('cap') || '');
+</script>
+</body></html>

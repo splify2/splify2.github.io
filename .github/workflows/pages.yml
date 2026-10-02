@@ -1,0 +1,50 @@
+name: pages
+
+# Сайт: главная (index.html, assets/) и документация, собранная из markdown репозиториев проектов
+# (build.py). Пересборка — при изменении сайта, раз в сутки (документация живёт в проектах) и вручную.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Репозитории проектов
+        run: |
+          for r in splify2 steer steer-box-connector xsteer splify2-lists; do
+            git clone --depth 1 "https://github.com/splify2/$r.git" "src/$r"
+          done
+      - name: Документация
+        run: |
+          pip install markdown pygments
+          SRC=src python3 build.py
+      - name: Сайт
+        run: |
+          mkdir -p _site
+          cp -r index.html assets docs .nojekyll _site/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

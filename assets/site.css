@@ -1,0 +1,66 @@
+/* Общий стиль splify2.github.io: главная и документация. Палитра — из логотипа splify2. */
+:root {
+  --bg: #f6f5fb; --bg2: #eeecf7; --surface: #ffffff; --text: #17142a; --muted: #5d5a75; --line: #e2dfef;
+  --accent: #6d5ce7; --accent2: #a897ff; --accent-soft: #ece9ff; --code: #f1eff9; --ok: #1f9d6b; --warn: #c2410c;
+  --shadow: 0 1px 2px rgba(20, 15, 50, .06), 0 8px 24px rgba(20, 15, 50, .06);
+  --grad: linear-gradient(135deg, #a897ff 0%, #6d5ce7 100%);
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #0f0d17; --bg2: #151221; --surface: #1a1628; --text: #ebe8f6; --muted: #a29fbb; --line: #2a2540;
+          --accent: #a897ff; --accent2: #c9bfff; --accent-soft: #241e3d; --code: #1e1a2e; --ok: #4fd6a0; --warn: #fb923c;
+          --shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.35); }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.65 Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+img { max-width: 100%; }
+code { font: .9em var(--mono); background: var(--code); padding: .1em .4em; border-radius: 6px; }
+pre { background: var(--code); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; overflow-x: auto;
+  font: 13.5px/1.6 var(--mono); white-space: pre; }
+pre code { background: none; padding: 0; font-size: inherit; }
+.wrap { max-width: 1160px; margin: 0 auto; padding: 0 16px; }
+
+/* ---- шапка ---- */
+.top { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: saturate(1.4) blur(12px); }
+.top .wrap { display: flex; align-items: center; gap: 16px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 750; font-size: 18px; letter-spacing: -.01em; }
+.brand:hover { text-decoration: none; }
+.brand img { width: 30px; height: 30px; }
+.top nav { margin-left: auto; display: flex; align-items: center; gap: 4px; }
+.top nav a { color: var(--muted); padding: 8px 12px; border-radius: 8px; font-size: 15px; font-weight: 550; }
+.top nav a:hover, .top nav a.on { color: var(--text); background: var(--accent-soft); text-decoration: none; }
+.gh { display: inline-flex; align-items: center; gap: 6px; }
+.gh svg { width: 18px; height: 18px; fill: currentColor; }
+@media (max-width: 680px) { .top nav a.opt { display: none; } .top nav a { padding: 8px 9px; } }
+
+/* ---- кнопки ---- */
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px; border-radius: 12px; font-weight: 650;
+  border: 1px solid var(--line); color: var(--text); background: var(--surface); transition: transform .15s, box-shadow .15s; }
+.btn:hover { text-decoration: none; transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn.primary { background: var(--grad); color: #fff; border-color: transparent; }
+
+/* ---- подвал ---- */
+footer.foot { border-top: 1px solid var(--line); padding: 32px 0 44px; color: var(--muted); font-size: 15px; }
+footer.foot .wrap { display: flex; flex-wrap: wrap; gap: 16px 28px; justify-content: space-between; align-items: center; }
+footer.foot nav { display: flex; flex-wrap: wrap; gap: 18px; }
+footer.foot a { color: var(--muted); }
+footer.foot a:hover { color: var(--text); }
+
+/* ---- подсветка кода (pygments, класс hl) ---- */
+.hl .c, .hl .c1, .hl .cm, .hl .ch { color: #8a86a3; font-style: italic; }
+.hl .k, .hl .kd, .hl .kn, .hl .nt { color: #7c5cf0; }
+.hl .s, .hl .s1, .hl .s2, .hl .sh { color: #13896a; }
+.hl .m, .hl .mi, .hl .mf, .hl .kc { color: #c2410c; }
+.hl .nb, .hl .nf, .hl .na { color: #2563eb; }
+@media (prefers-color-scheme: dark) {
+  .hl .k, .hl .kd, .hl .kn, .hl .nt { color: #b9a8ff; }
+  .hl .s, .hl .s1, .hl .s2, .hl .sh { color: #5ee0b0; }
+  .hl .m, .hl .mi, .hl .mf, .hl .kc { color: #fdba74; }
+  .hl .nb, .hl .nf, .hl .na { color: #93c5fd; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; scroll-behavior: auto !important; } }
