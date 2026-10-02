@@ -49,7 +49,6 @@
         <a class="btn" href="/docs/">Документация</a>
         <a class="btn ghost" href="https://github.com/splify2">GitHub</a>
       </div>
-      <p class="live" id="live" hidden title="Роутеры, откликнувшиеся за последние сутки"><i aria-hidden="true"></i><span></span></p>
     </div>
 
     <div class="net" aria-label="Схема: устройства сети, роутер, туннель для выбранных сервисов и прямой путь для остальных">
@@ -95,6 +94,14 @@
   <div class="an-glass"><b>0</b><span>прокси на соединение: метки nftables и таблицы маршрутизации</span></div>
   <div class="an-glass"><b>apk + opkg</b><span>OpenWrt 25.12 и прежние выпуски: оба формата пакетов</span></div>
 </div></section>
+
+<section id="map" class="map" hidden>
+  <div class="wrap"><h2 class="live" id="live"></h2></div>
+  <div class="map-wide"><div class="map-card an-glass" id="map-card" hidden>
+    <svg id="ru-map" role="img" aria-label="Карта России: города, где работает splify2"></svg>
+    <div class="map-tip" id="map-tip" hidden></div>
+  </div></div>
+</section>
 
 <section id="features" class="features"><div class="wrap">
   <div class="sec-head reveal"><span class="kicker">Возможности</span><h2>Всё, что нужно для раздельного туннеля</h2><p>Правила сверху вниз, выходы с проверкой, домены через fake-IP. Ядро steer применяет это одной атомарной транзакцией: либо новые правила встают целиком, либо остаются прежние.</p></div>

@@ -145,7 +145,25 @@ section { padding: 64px 0; }
 .framed:hover img { transform: translateY(-4px); }
 .framed .cap { margin: var(--an-space-2) 0 0; color: var(--muted); font-size: 15px; }
 
-/* Счётчик живых роутеров под кнопками героя. */
-.live { display: inline-flex; align-items: center; gap: 10px; margin: var(--an-space-8) 0 0; color: var(--muted); font-size: 15px; }
-.live[hidden] { display: none; }
-.live i { width: 8px; height: 8px; border-radius: 50%; background: var(--an-success); box-shadow: 0 0 0 4px color-mix(in srgb, var(--an-success) 22%, transparent); }
+/* Карта России: контур — assets/ru-map.json (tools/ru_map.py), города — из сводки откликов. */
+.map[hidden], .map-card[hidden] { display: none; }
+.map .live { font-size: clamp(27px, 3.6vw, 38px); line-height: 1.15; letter-spacing: var(--an-tracking-verdict); margin: 0 0 var(--an-space-9); }
+/* Карта шире колонки текста: почти во всю ширину окна, до 1720 px. */
+.map-wide { max-width: 1720px; margin: 0 auto; padding: 0 var(--an-space-8); }
+.map-card { position: relative; border-width: 1px; border-style: solid; border-radius: var(--an-radius-card); padding: clamp(10px, 2.2vw, 36px); }
+#ru-map { display: block; width: 100%; height: auto; overflow: visible; }
+/* Прозрачность — у группы, а не у заливки: куски контура на 180-м меридиане перекрываются, и
+   полупрозрачная заливка рисовала бы на стыке шов. */
+#ru-map .land { opacity: .14; }
+#ru-map .land path { fill: var(--an-accent); stroke: var(--an-accent); stroke-width: .7; }
+.dark #ru-map .land, [data-theme="dark"] #ru-map .land { opacity: .26; }
+#ru-map .halo { fill: var(--an-accent); opacity: .16; }
+#ru-map .dot { fill: var(--an-accent); stroke: var(--an-glass-edge); stroke-width: 1.5; vector-effect: non-scaling-stroke; cursor: pointer; transition: opacity .15s; }
+#ru-map g.city { outline: none; }
+#ru-map g.city:hover .dot, #ru-map g.city:focus-visible .dot { fill: var(--link); }
+#ru-map g.city:focus-visible .halo { opacity: .4; }
+.map-tip { position: absolute; transform: translate(-50%, calc(-100% - 12px)); pointer-events: none; white-space: nowrap;
+  padding: 6px 12px; border-radius: var(--an-radius-control); font-size: 14px; font-weight: var(--an-weight-medium);
+  background: var(--an-surface-card); color: var(--an-text); border: 1px solid var(--an-border); box-shadow: var(--an-glass-shadow); }
+.map-tip[hidden] { display: none; }
+@media (max-width: 560px) { .map-wide { padding: 0 var(--an-space-4); } }
