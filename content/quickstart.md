@@ -26,7 +26,7 @@ wget -O /tmp/splify2-install.sh https://gitlab.com/xyzmean/splify2/-/raw/main/in
 
 ## Ядро steer отдельно
 
-Пакеты берутся со страницы [выпусков steer](https://github.com/splify2/steer/releases): ядро
+Пакеты берутся со страницы [выпусков](/releases/#steer): ядро
 `steer-core` нужно всегда, модули протоколов — по нужде (`steer-vless`, `steer-hysteria2`,
 `steer-proxy`, `steer-xsteer`, `steer-obfs`, `steer-tgws`). Все одной версии и одной архитектуры,
 одной командой:

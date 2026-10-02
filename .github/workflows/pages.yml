@@ -1,12 +1,20 @@
 name: pages
 
-# Сайт: главная (index.html, assets/) и документация, собранная из markdown репозиториев проектов
-# (build.py). Пересборка — при изменении сайта, раз в сутки (документация живёт в проектах) и вручную.
+# Сайт: главная (index.html, assets/), документация, собранная из markdown репозиториев проектов, и
+# выпуски из splify2/releases (build.py). Пересборка — при изменении сайта, раз в сутки
+# (документация живёт в проектах), при новом выпуске и вручную.
+#
+# Новый выпуск: раз в час сверяется version.json сайта с version.json в splify2/releases; разошлись —
+# сайт пересобирается (секрет для этого не нужен). repository_dispatch с типом releases пересобирает
+# сразу — его может прислать publish.py токеном с доступом к этому репозиторию.
 on:
   push:
     branches: [main]
   schedule:
     - cron: '17 3 * * *'
+    - cron: '47 * * * *'
+  repository_dispatch:
+    types: [releases]
   workflow_dispatch:
 
 permissions:
@@ -14,34 +22,56 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
-
 jobs:
-  build:
+  # Часовой запуск: пересобирать, только если на сайте не тот version.json, что в splify2/releases.
+  check:
     runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.cmp.outputs.build }}
+    steps:
+      - id: cmp
+        run: |
+          if [ "${{ github.event_name }}" != schedule ] || [ "${{ github.event.schedule }}" != '47 * * * *' ]; then
+            echo build=true >> "$GITHUB_OUTPUT"; exit 0
+          fi
+          src=$(git ls-remote https://github.com/splify2/releases.git refs/heads/main | cut -f1)
+          curl -fsSL "https://raw.githubusercontent.com/splify2/releases/$src/version.json" -o new.json || { echo build=true >> "$GITHUB_OUTPUT"; exit 0; }
+          if curl -fsSL "https://splify2.github.io/releases/version.json?$src" -o cur.json && cmp -s new.json cur.json; then
+            echo build=false >> "$GITHUB_OUTPUT"
+          else
+            echo build=true >> "$GITHUB_OUTPUT"
+          fi
+  build:
+    needs: check
+    if: needs.check.outputs.build == 'true'
+    runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
-      - name: Репозитории проектов
+      - name: Репозитории проектов и выпуски
         run: |
-          for r in splify2 steer steer-box-connector xsteer splify2-lists; do
+          for r in splify2 steer steer-box-connector xsteer splify2-lists releases; do
             git clone --depth 1 "https://github.com/splify2/$r.git" "src/$r"
           done
-      - name: Документация
+      - name: Документация и выпуски
         run: |
           pip install markdown pygments
           SRC=src python3 build.py
       - name: Сайт
         run: |
           mkdir -p _site
-          cp -r index.html assets docs .nojekyll _site/
+          cp -r index.html assets docs releases .nojekyll _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    concurrency:
+      group: pages-deploy
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

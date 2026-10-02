@@ -3,3 +3,4 @@ _site/
 src/
 __pycache__/
 tools/preview.html
+releases/
