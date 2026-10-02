@@ -54,4 +54,22 @@
       navigator.clipboard.writeText(txt).then(function () { b.textContent = 'Скопировано'; setTimeout(function () { b.textContent = 'Скопировать'; }, 1500); });
     });
   });
+  // Счётчик живых роутеров: сводка приёмника откликов (раз в 23 часа с каждого роутера), а если
+  // она недоступна — снимок, сделанный при сборке сайта, не старше двух суток.
+  var live = document.getElementById('live');
+  if (live && window.fetch) {
+    var API = 'https://splify2-telemetry-panel.vercel.app/api/public';
+    var get = function (url) {
+      var ctl = window.AbortController ? new AbortController() : null;
+      if (ctl) setTimeout(function () { ctl.abort(); }, 5000);
+      return fetch(url, ctl ? { signal: ctl.signal } : {}).then(function (r) { if (!r.ok) throw r; return r.json(); });
+    };
+    var fresh = function (d) { return d && d.routers > 0 && Date.now() - Date.parse(d.updated) < 2 * 864e5 ? d : Promise.reject(); };
+    get(API).then(fresh).catch(function () { return get('/assets/live.json').then(fresh); }).then(function (d) {
+      var n = d.more_than || d.routers;
+      var word = !d.more_than && n % 10 === 1 && n % 100 !== 11 ? 'роутере' : 'роутерах';
+      live.querySelector('span').textContent = 'Работает ' + (d.more_than ? 'более чем ' : '') + 'на ' + n + ' ' + word;
+      live.hidden = false;
+    }).catch(function () {});
+  }
 })();

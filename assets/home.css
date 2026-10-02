@@ -144,3 +144,8 @@ section { padding: 64px 0; }
 .framed img.fade { opacity: 0; }
 .framed:hover img { transform: translateY(-4px); }
 .framed .cap { margin: var(--an-space-2) 0 0; color: var(--muted); font-size: 15px; }
+
+/* Счётчик живых роутеров под кнопками героя. */
+.live { display: inline-flex; align-items: center; gap: 10px; margin: var(--an-space-8) 0 0; color: var(--muted); font-size: 15px; }
+.live[hidden] { display: none; }
+.live i { width: 8px; height: 8px; border-radius: 50%; background: var(--an-success); box-shadow: 0 0 0 4px color-mix(in srgb, var(--an-success) 22%, transparent); }

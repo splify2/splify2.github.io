@@ -64,6 +64,8 @@ jobs:
         run: |
           mkdir -p _site
           cp -r index.html assets docs releases .nojekyll _site/
+          # Снимок счётчика живых роутеров — на случай, когда сводка недоступна из браузера.
+          curl -fsS -m 20 https://splify2-telemetry-panel.vercel.app/api/public -o _site/assets/live.json || rm -f _site/assets/live.json
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
