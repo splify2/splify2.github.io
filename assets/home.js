@@ -72,7 +72,9 @@
       var word = !d.more_than && n % 10 === 1 && n % 100 !== 11 ? 'роутере' : 'роутерах';
       live.textContent = 'Работает ' + (d.more_than ? 'более чем ' : '') + 'на ' + n + ' ' + word;
       mapSec.hidden = false;
-      var cities = (d.cities || []).filter(function (c) { return c.cc === 'RU'; });
+      // Карта — от десяти роутеров (сервер до этого и городов не отдаёт): кружок при одном-двух
+      // роутерах показывал бы город конкретного человека.
+      var cities = d.routers >= 10 ? (d.cities || []).filter(function (c) { return c.cc === 'RU'; }) : [];
       if (!cities.length) return;
       return get('/assets/ru-map.json').then(function (m) { drawMap(m, cities); });
     }).catch(function () {});
