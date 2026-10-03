@@ -148,8 +148,6 @@ section { padding: 64px 0; }
 /* Карта России: контур — assets/ru-map.json (tools/ru_map.py), города — из сводки откликов. */
 .map[hidden], .map-card[hidden] { display: none; }
 .map .live { font-size: clamp(27px, 3.6vw, 38px); line-height: 1.15; letter-spacing: var(--an-tracking-verdict); margin: 0 0 var(--an-space-9); }
-/* Карта шире колонки текста: почти во всю ширину окна, до 1720 px. */
-.map-wide { max-width: 1720px; margin: 0 auto; padding: 0 var(--an-space-8); }
 .map-card { position: relative; border-width: 1px; border-style: solid; border-radius: var(--an-radius-card); padding: clamp(10px, 2.2vw, 36px); }
 #ru-map { display: block; width: 100%; height: auto; overflow: visible; }
 /* Прозрачность — у группы, а не у заливки: куски контура на 180-м меридиане перекрываются, и
@@ -166,4 +164,3 @@ section { padding: 64px 0; }
   padding: 6px 12px; border-radius: var(--an-radius-control); font-size: 14px; font-weight: var(--an-weight-medium);
   background: var(--an-surface-card); color: var(--an-text); border: 1px solid var(--an-border); box-shadow: var(--an-glass-shadow); }
 .map-tip[hidden] { display: none; }
-@media (max-width: 560px) { .map-wide { padding: 0 var(--an-space-4); } }

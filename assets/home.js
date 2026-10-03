@@ -68,13 +68,13 @@
     var fresh = function (d) { return d && d.routers > 0 && Date.now() - Date.parse(d.updated) < 2 * 864e5 ? d : Promise.reject(); };
     var stats = get(API).then(fresh).catch(function () { return get('/assets/live.json').then(fresh); });
     stats.then(function (d) {
-      var n = d.more_than || d.routers;
-      var word = !d.more_than && n % 10 === 1 && n % 100 !== 11 ? 'роутере' : 'роутерах';
-      live.textContent = 'Работает ' + (d.more_than ? 'более чем ' : '') + 'на ' + n + ' ' + word;
+      // Секция — только когда есть что сказать «более чем»: сервер отдаёт more_than от 11 роутеров
+      // (круглое и меньше настоящего), до этого ни строки, ни карты. Городов сервер до 10 роутеров
+      // не отдаёт: кружок при одном-двух роутерах показывал бы город конкретного человека.
+      if (!d.more_than) return;
+      live.textContent = 'Работает более чем на ' + d.more_than + '\u00a0роутерах';
       mapSec.hidden = false;
-      // Карта — от десяти роутеров (сервер до этого и городов не отдаёт): кружок при одном-двух
-      // роутерах показывал бы город конкретного человека.
-      var cities = d.routers >= 10 ? (d.cities || []).filter(function (c) { return c.cc === 'RU'; }) : [];
+      var cities = (d.cities || []).filter(function (c) { return c.cc === 'RU'; });
       if (!cities.length) return;
       return get('/assets/ru-map.json').then(function (m) { drawMap(m, cities); });
     }).catch(function () {});
