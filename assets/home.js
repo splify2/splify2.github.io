@@ -59,7 +59,7 @@
   var live = document.getElementById('live');
   var mapSec = document.getElementById('map');
   if (live && mapSec && window.fetch) {
-    var API = 'https://splify2-telemetry-panel.vercel.app/api/public';
+    var API = 'https://dns.yo1nk.app/api/public';
     var get = function (url) {
       var ctl = window.AbortController ? new AbortController() : null;
       if (ctl) setTimeout(function () { ctl.abort(); }, 5000);
