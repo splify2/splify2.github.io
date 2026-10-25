@@ -39,7 +39,6 @@ NAV = [
     ("splify2", [
         ("splify2", "Панель splify2", "splify2:docs/guide.md"),
         ("splify2/rpcd-api", "API rpcd", "splify2:docs/rpcd-api.md"),
-        ("splify2/telemetry", "Отчёт о работе", "splify2:docs/TELEMETRY.md"),
         ("lists", "Каталог списков", "splify2-lists:README.md"),
     ]),
     ("Ядро steer", [
