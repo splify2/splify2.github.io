@@ -1,7 +1,7 @@
 name: pages
 
 # Сайт: главная (index.html, assets/), документация, собранная из markdown репозиториев проектов, и
-# выпуски из splify2/releases (build.py). Стили и шрифты — дизайн-система Andromeda из splify2/ui/andromeda
+# выпуски из splify2/releases (build.py). Стили и шрифты — дизайн-система Andromeda из splify2/andromeda (ui/andromeda)
 # (build.py кладёт её в assets/andromeda/). Пересборка — при изменении сайта, раз в сутки
 # (документация живёт в проектах), при новом выпуске и вручную.
 #
@@ -53,7 +53,7 @@ jobs:
       - uses: actions/checkout@v4
       - name: Репозитории проектов и выпуски
         run: |
-          for r in splify2 steer steer-box-connector xsteer splify2-lists releases; do
+          for r in splify2 andromeda steer steer-box-connector xsteer splify2-lists releases; do
             git clone --depth 1 "https://github.com/splify2/$r.git" "src/$r"
           done
       - name: Документация и выпуски

@@ -8,7 +8,7 @@
 Выпуски — из клона splify2/releases (SRC/releases): releases/index.html и releases/version.json —
 копия байт в байт, третий адрес чтения version.json для установщика и роутеров.
 
-Дизайн-система Andromeda — та же, что у пульта splify2: из клона splify2 (SRC/splify2/ui/andromeda,
+Дизайн-система Andromeda — та же, что у пульта splify2: из клона splify2/andromeda (SRC/andromeda/ui/andromeda,
 другой путь — переменной ANDROMEDA) в assets/andromeda/: styles.css, tokens/*.css и assets/fonts/.
 
     python3 build.py            # SRC — родительский каталог
@@ -382,9 +382,9 @@ def build_releases():
     return True
 
 
-# ---- Andromeda: дизайн-система пульта splify2 (ui/andromeda) — один источник правды и для сайта ----
+# ---- Andromeda: дизайн-система пульта splify2 (splify2/andromeda, ui/andromeda) — один источник правды и для сайта ----
 
-ANDROMEDA_SRC = os.environ.get("ANDROMEDA") or os.path.join(SRC, "splify2", "ui", "andromeda")
+ANDROMEDA_SRC = os.environ.get("ANDROMEDA") or os.path.join(SRC, "andromeda", "ui", "andromeda")
 ANDROMEDA_OUT = os.path.join(ROOT, "assets", "andromeda")
 CSS_REF = re.compile(r"""@import\s+(?:url\()?\s*["']([^"']+)["']|url\(\s*["']?([^"')]+)["']?\s*\)""")
 
@@ -398,7 +398,7 @@ def build_andromeda():
     fonts = os.path.join(ANDROMEDA_SRC, "assets", "fonts")
     if not (os.path.isfile(styles) and os.path.isdir(tokens) and os.path.isdir(fonts)):
         print(f"нет Andromeda: {ANDROMEDA_SRC} (styles.css, tokens/, assets/fonts/) — дизайн-систему сайт "
-              "берёт из splify2/ui/andromeda", file=sys.stderr)
+              "берёт из splify2/andromeda, ui/andromeda", file=sys.stderr)
         return False
     if os.path.isdir(ANDROMEDA_OUT):
         shutil.rmtree(ANDROMEDA_OUT)
@@ -428,7 +428,7 @@ def build_andromeda():
 
 def main():
     if not build_andromeda():
-        print("нет источников: splify2:ui/andromeda", file=sys.stderr)
+        print("нет источников: andromeda:ui/andromeda", file=sys.stderr)
         sys.exit(1)
     tpl = open(os.path.join(ROOT, "templates", "doc.html"), encoding="utf-8").read()
     index, missing = [], []
